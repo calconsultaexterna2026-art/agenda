@@ -133,17 +133,18 @@
             </form>
         </div>
 
-        <!-- MÓDULO DE CONSULTA Y FILTROS COMPACTO -->
-        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-3 border border-slate-200/60">
-            <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleFiltros()">
+        <!-- SECCIÓN DE CITAS Y FILTROS INTEGRADOS -->
+        <div class="bg-transparent sm:bg-white rounded-lg sm:shadow-sm sm:p-4 sm:border sm:border-slate-200/60">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 px-1 sm:px-0">
                 <div class="flex items-center space-x-1.5">
                     <span class="text-blue-600 font-bold text-xs">🔍</span>
-                    <h2 class="text-xs sm:text-sm font-semibold text-slate-700">Consulta de Pacientes y Citas</h2>
+                    <h2 class="text-xs sm:text-sm font-semibold text-slate-700">Citas Registradas y Filtros</h2>
                 </div>
-                <span id="iconoFiltro" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">▼ Desplegar</span>
+                <span id="contadorCitas" class="text-[11px] font-semibold text-slate-600 bg-white sm:bg-slate-100 px-2.5 py-0.5 rounded-full border sm:border-none">0 citas</span>
             </div>
 
-            <div id="panelFiltros" class="hidden pt-3 mt-2 border-t grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+            <!-- Filtros Integrados Justo Arriba de la Tabla -->
+            <div class="bg-slate-50 p-2.5 sm:p-3 rounded-md border border-slate-200 mb-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Filtrar por Médico</label>
                     <select id="filtroDoctor" onchange="aplicarFiltros()" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white">
@@ -163,27 +164,20 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Buscar por N° Registro</label>
-                    <input type="text" id="filtroRegistro" oninput="aplicarFiltros()" placeholder="Ej. 40093-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase">
+                    <input type="text" id="filtroRegistro" oninput="aplicarFiltros()" placeholder="Ej. 40093-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase bg-white">
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Buscar Paciente</label>
-                    <input type="text" id="filtroPaciente" oninput="aplicarFiltros()" placeholder="Nombre..." class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase">
+                    <input type="text" id="filtroPaciente" oninput="aplicarFiltros()" placeholder="Nombre..." class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase bg-white">
                 </div>
                 <div class="sm:col-span-2 md:col-span-4 flex justify-end">
-                    <button type="button" onclick="limpiarFiltros()" class="text-[11px] bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1 rounded font-medium">
+                    <button type="button" onclick="limpiarFiltros()" class="text-[11px] bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 px-3 py-1 rounded font-medium shadow-sm">
                         🧹 Limpiar Filtros
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Tabla con Scroll Interno Controlado -->
-        <div class="bg-transparent sm:bg-white rounded-lg sm:shadow-sm sm:p-4 sm:border sm:border-slate-200/60">
-            <div class="flex justify-between items-center mb-2 px-1 sm:px-0">
-                <h2 class="text-xs sm:text-sm font-semibold text-slate-700">Citas Registradas</h2>
-                <span id="contadorCitas" class="text-[11px] font-semibold text-slate-600 bg-white sm:bg-slate-100 px-2.5 py-0.5 rounded-full border sm:border-none">0 citas</span>
-            </div>
-
+            <!-- Tabla con Scroll Interno Controlado -->
             <div class="max-h-[380px] overflow-y-auto pr-1">
                 <table class="w-full text-left border-collapse text-xs tabla-responsive">
                     <thead class="sticky top-0 bg-slate-50 z-10">
@@ -276,12 +270,11 @@
         const partes = inputFecha.value.split('-');
         const anio = parseInt(partes[0]), mes = parseInt(partes[1]), dia = parseInt(partes[2]);
         const fechaSeleccionada = new Date(anio, mes - 1, dia);
-        const diaSemana = fechaSeleccionada.getDay(); // 0 = Domingo, 6 = Sábado
+        const diaSemana = fechaSeleccionada.getDay();
         const mesDia = `${partes[1]}-${partes[2]}`;
 
         document.getElementById('anio').value = anio.toString();
 
-        // 1. Fin de semana
         if (diaSemana === 0 || diaSemana === 6) {
           msgFecha.innerHTML = "❌ Sábado y Domingo NO se asignan citas.";
           msgFecha.className = "text-[10px] mt-0.5 font-semibold text-red-600 block";
@@ -298,7 +291,6 @@
           return;
         }
 
-        // Indicador estándar de fecha disponible
         msgFecha.innerHTML = "✅ Fecha disponible para agendar cita.";
         msgFecha.className = "text-[10px] mt-0.5 font-semibold text-emerald-600 block";
         btnGuardar.disabled = false;
@@ -424,18 +416,6 @@
         document.getElementById('filtroRegistro').value = "";
         document.getElementById('filtroPaciente').value = "";
         aplicarFiltros();
-      };
-
-      window.toggleFiltros = () => {
-        const panel = document.getElementById('panelFiltros');
-        const icono = document.getElementById('iconoFiltro');
-        if (panel.classList.contains('hidden')) {
-          panel.classList.remove('hidden');
-          icono.innerText = "▲ Plegar";
-        } else {
-          panel.classList.add('hidden');
-          icono.innerText = "▼ Desplegar";
-        }
       };
 
       window.prepararEdicion = (id) => {
