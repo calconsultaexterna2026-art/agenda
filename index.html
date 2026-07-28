@@ -81,16 +81,16 @@
                     <input type="text" id="registro" placeholder="40093-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
                 </div>
 
-                <!-- Doctor Asignado -->
+                <!-- Médico Asignado -->
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Doctor Asignado</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Médico Asignado</label>
                     <select id="doctor" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-                        <option value="">Seleccione Doctor...</option>
+                        <option value="">Seleccione Médico...</option>
                         <option value="Dr. Reyes">Dr. Reyes</option>
                         <option value="Dra. Molina">Dra. Molina</option>
                         <option value="Dr. Gonzalez">Dr. Gonzalez</option>
                         <option value="Dr. Avalos">Dr. Avalos</option>
-                        <option value="Dr. Hurtarte">Dr. Hurtarte</option>
+                        <option value="Dr. Hurtarte">🔴 Dr. Hurtarte (Lunes / Miércoles)</option>
                         <option value="Dra. Flores">Dra. Flores</option>
                         <option value="Dr. Mendoza">Dr. Mendoza</option>
                     </select>
@@ -132,7 +132,7 @@
                 <span id="contadorCitas" class="text-[11px] font-semibold text-slate-600 bg-white sm:bg-slate-100 px-2.5 py-0.5 rounded-full border sm:border-none">0 citas</span>
             </div>
 
-            <!-- Filtros Integrados Justo Arriba de la Tabla -->
+            <!-- Filtros Integrados Justo Arriba de la Tabla para el Gran Listado -->
             <div class="bg-slate-50 p-2.5 sm:p-3 rounded-md border border-slate-200 mb-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Filtrar por Médico</label>
@@ -142,7 +142,7 @@
                         <option value="Dra. Molina">Dra. Molina</option>
                         <option value="Dr. Gonzalez">Dr. Gonzalez</option>
                         <option value="Dr. Avalos">Dr. Avalos</option>
-                        <option value="Dr. Hurtarte">Dr. Hurtarte</option>
+                        <option value="Dr. Hurtarte">🔴 Dr. Hurtarte (Lunes / Miércoles)</option>
                         <option value="Dra. Flores">Dra. Flores</option>
                         <option value="Dr. Mendoza">Dr. Mendoza</option>
                     </select>
@@ -175,7 +175,7 @@
                             <th class="p-2 bg-slate-50">PACIENTE</th>
                             <th class="p-2 bg-slate-50">DUI / TEL.</th>
                             <th class="p-2 bg-slate-50">REGISTRO</th>
-                            <th class="p-2 bg-slate-50">DOCTOR</th>
+                            <th class="p-2 bg-slate-50">MÉDICO</th>
                             <th class="p-2 bg-slate-50">ESTADO</th>
                             <th class="p-2 bg-slate-50 text-center">ACCIÓN</th>
                         </tr>
@@ -262,7 +262,6 @@
         const diaSemana = fechaSeleccionada.getDay();
         const mesDia = `${partes[1]}-${partes[2]}`;
 
-        // Asignación automática del año oculto
         document.getElementById('anio').value = anio.toString();
 
         if (diaSemana === 0 || diaSemana === 6) {
@@ -389,7 +388,7 @@
             <td data-label="Paciente" class="p-2 font-semibold uppercase text-slate-800">${data.paciente || ''}</td>
             <td data-label="DUI / Tel" class="p-2 text-[11px] text-slate-500">${data.dui || '-'}<br class="hidden sm:inline">${data.telefono ? ' Tel: ' + data.telefono : ''}</td>
             <td data-label="Registro" class="p-2 text-[11px] font-mono font-bold">${data.registro || '-'}</td>
-            <td data-label="Doctor" class="p-2 font-normal text-slate-800">${data.doctor || ''}</td>
+            <td data-label="Médico" class="p-2 font-normal text-slate-800">${data.doctor || ''}</td>
             <td data-label="Estado" class="p-2"><span class="text-[10px] px-2 py-0.5 rounded-full font-medium ${estadoColor}">${data.estado || 'Agendado'}</span></td>
             <td class="p-2 text-center space-x-1.5 td-acciones">
               <button onclick="prepararEdicion('${data.id}')" class="text-[11px] bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded font-medium border border-amber-200/50">Editar</button>
