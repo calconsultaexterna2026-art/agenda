@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Médica - Control de Citas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <!-- Encabezado -->
+        <header class="mb-6 border-b pb-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Control de Agenda Médica</h1>
+                <p class="text-sm text-slate-500">Gestión institucional de citas y pacientes</p>
+            </div>
+            <div id="statusBadge" class="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-medium">
+                Conectando a Firebase...
+            </div>
+        </header>
+
+        <!-- Formulario de Registro / Edición de Citas -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="formTitulo" class="text-lg font-semibold text-slate-700">Agendar Nueva Cita</h2>
+                <button id="btnCancelarEdicion" onclick="cancelarEdicion()" class="hidden text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1 rounded-md font-medium">
+                    Cancelar Edición
+                </button>
+            </div>
+            
+            <form id="citaForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <input type="hidden" id="editId" value="">
+
+                <!-- Nombre del Paciente -->
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Paciente</label>
+                    <input type="text" id="paciente" required class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="EJ. JOSE ALFREDO JIMENEZ">
+                </div>
+
+                <!-- DUI -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">DUI (00000000-0)</label>
+                    <input type="text" id="dui" maxlength="10" placeholder="02043231-6" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- Teléfono (8 dígitos) -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono (8 dígitos)</label>
+                    <input type="tel" id="telefono" maxlength="8" placeholder="74803608" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- N° de Registro -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">N° Registro (XXXXX-AAAA)</label>
+                    <input type="text" id="registro" placeholder="40093-2026" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- Doctor Asignado -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Doctor Asignado</label>
+                    <select id="doctor" required class="w-full border rounded-md p-2 text-sm font-normal focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">Seleccione Doctor...</option>
+                        <option value="Dr. Reyes">Dr. Reyes</option>
+                        <option value="Dra. Molina">Dra. Molina</option>
+                        <option value="Dr. Gonzalez">Dr. Gonzalez</option>
+                        <option value="Dr. Avalos">Dr. Avalos</option>
+                        <option value="Dr. Hurtarte" class="text-red-600">Dr. Hurtarte 🔴 (Solo Lun/Mié)</option>
+                        <option value="Dra. Flores">Dra. Flores</option>
+                        <option value="Dr. Mendoza">Dr. Mendoza</option>
+                    </select>
+                </div>
+
+                <!-- Fecha y Validación -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Cita</label>
+                    <input type="date" id="fecha" required class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <p id="msgFecha" class="text-xs mt-1 font-semibold hidden"></p>
+                </div>
+
+                <!-- Selector de Año -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año</label>
+                    <select id="anio" required class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Estado</label>
+                    <select id="estado" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="Agendado">Agendado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Atendido">Atendido</option>
+                    </select>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="sm:col-span-2 md:col-span-4 mt-2">
+                    <button type="submit" id="btnGuardar" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                        Guardar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- MÓDULO DE CONSULTA Y FILTROS -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex justify-between items-center mb-3 cursor-pointer" onclick="toggleFiltros()">
+                <div class="flex items-center space-x-2">
+                    <span class="text-blue-600 font-bold">🔍</span>
+                    <h2 class="text-base font-semibold text-slate-700">Consulta de Pacientes y Citas Asignadas</h2>
+                </div>
+                <span id="iconoFiltro" class="text-xs text-slate-400">▼ Desplegar</span>
+            </div>
+
+            <div id="panelFiltros" class="pt-3 border-t grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Filtro por Médico -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Filtrar por Médico</label>
+                    <select id="filtroDoctor" onchange="aplicarFiltros()" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">Todos los médicos</option>
+                        <option value="Dr. Reyes">Dr. Reyes</option>
+                        <option value="Dra. Molina">Dra. Molina</option>
+                        <option value="Dr. Gonzalez">Dr. Gonzalez</option>
+                        <option value="Dr. Avalos">Dr. Avalos</option>
+                        <option value="Dr. Hurtarte">Dr. Hurtarte</option>
+                        <option value="Dra. Flores">Dra. Flores</option>
+                        <option value="Dr. Mendoza">Dr. Mendoza</option>
+                    </select>
+                </div>
+
+                <!-- Filtro por Fecha -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Filtrar por Fecha</label>
+                    <input type="date" id="filtroFecha" onchange="aplicarFiltros()" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- Filtro por N° Registro -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Buscar por N° Registro</label>
+                    <input type="text" id="filtroRegistro" oninput="aplicarFiltros()" placeholder="Ej. 40093-2026" class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none uppercase">
+                </div>
+
+                <!-- Filtro por Paciente -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Buscar Paciente</label>
+                    <input type="text" id="filtroPaciente" oninput="aplicarFiltros()" placeholder="Nombre del paciente..." class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none uppercase">
+                </div>
+
+                <!-- Botón Limpiar -->
+                <div class="sm:col-span-2 md:col-span-4 flex justify-end">
+                    <button type="button" onclick="limpiarFiltros()" class="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-md font-medium transition">
+                        🧹 Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Citas -->
+        <div class="bg-white rounded-lg shadow-sm p-6 overflow-x-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-slate-700">Citas Registradas</h2>
+                <span id="contadorCitas" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">0 citas</span>
+            </div>
+
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b bg-slate-50 text-slate-600 text-xs uppercase font-semibold">
+                        <th class="p-3">FECHA Y AÑO</th>
+                        <th class="p-3">PACIENTE</th>
+                        <th class="p-3">DUI / TEL.</th>
+                        <th class="p-3">REGISTRO</th>
+                        <th class="p-3">DOCTOR</th>
+                        <th class="p-3">ESTADO</th>
+                        <th class="p-3 text-center">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCitas">
+                    <tr>
+                        <td colspan="7" class="p-4 text-center text-slate-400 italic">Cargando datos de Firebase...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      // Credenciales
+      const firebaseConfig = {
+        apiKey: "AIzaSyDuixL3_4MSVbVLorKtepRq2kCb1AUfeUM",
+        authDomain: "agendamedica-865ad.firebaseapp.com",
+        projectId: "agendamedica-865ad",
+        storageBucket: "agendamedica-865ad.firebasestorage.app",
+        messagingSenderId: "172417681026",
+        appId: "1:172417681026:web:465a936a7fcff46d41d69b",
+        measurementId: "G-RXBD9KR3GV"
+      };
+
+      let db;
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        
+        document.getElementById("statusBadge").className = "text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-medium";
+        document.getElementById("statusBadge").innerText = "Firebase Conectado";
+        cargarCitas();
+      } catch (e) {
+        console.error("Error al conectar Firebase:", e);
+        document.getElementById("statusBadge").className = "text-xs bg-red-100 text-red-800 px-3 py-1 rounded-full font-medium";
+        document.getElementById("statusBadge").innerText = "Error de Conexión";
+      }
+
+      // Autoformatos
+      document.getElementById('paciente').addEventListener('input', (e) => e.target.value = e.target.value.toUpperCase());
+
+      document.getElementById('dui').addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, ''); 
+        if (val.length > 8) val = val.substring(0, 8) + '-' + val.substring(8, 9);
+        e.target.value = val;
+      });
+
+      document.getElementById('telefono').addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, ''); 
+        if (val.length > 8) val = val.substring(0, 8);
+        e.target.value = val;
+      });
+
+      document.getElementById('registro').addEventListener('input', (e) => {
+        let val = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); 
+        if (val.length > 4) val = val.substring(0, val.length - 4) + '-' + val.substring(val.length - 4);
+        e.target.value = val.toUpperCase();
+      });
+
+      // Validaciones de Fecha y Asuetos SV
+      const asuetosFijosSV = ["01-01", "05-01", "05-10", "06-17", "08-01", "08-02", "08-03", "08-04", "08-05", "08-06", "09-15", "11-02", "12-25"];
+
+      function esSemanaSanta(year, month, day) {
+        const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+        const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+        const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+        const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+        const mesPascua = Math.floor((h + l - 7 * m + 114) / 31), diaPascua = ((h + l - 7 * m + 114) % 31) + 1;
+        const pascua = new Date(year, mesPascua - 1, diaPascua);
+        const juevesSanto = new Date(pascua); juevesSanto.setDate(pascua.getDate() - 3);
+        const viernesSanto = new Date(pascua); viernesSanto.setDate(pascua.getDate() - 2);
+        const fechaEval = new Date(year, month - 1, day);
+        return fechaEval.toDateString() === juevesSanto.toDateString() || fechaEval.toDateString() === viernesSanto.toDateString();
+      }
+
+      const inputFecha = document.getElementById('fecha');
+      const msgFecha = document.getElementById('msgFecha');
+      const btnGuardar = document.getElementById('btnGuardar');
+
+      function validarDisponibilidad() {
+        if (!inputFecha.value) return;
+        const partes = inputFecha.value.split('-');
+        const anio = parseInt(partes[0]), mes = parseInt(partes[1]), dia = parseInt(partes[2]);
+        const fechaSeleccionada = new Date(anio, mes - 1, dia);
+        const diaSemana = fechaSeleccionada.getDay();
+        const mesDia = `${partes[1]}-${partes[2]}`;
+
+        document.getElementById('anio').value = anio.toString();
+
+        if (diaSemana === 0 || diaSemana === 6) {
+          msgFecha.innerText = "❌ Atención: Sábado y Domingo NO se asignan citas.";
+          msgFecha.className = "text-xs mt-1 font-semibold text-red-600 block";
+          btnGuardar.disabled = true;
+          btnGuardar.classList.add('opacity-50', 'cursor-not-allowed');
+          return;
+        }
+
+        let prefijoDia = (diaSemana === 1 || diaSemana === 3) ? " [LUNES/MIÉRCOLES]" : "";
+
+        if (asuetosFijosSV.includes(mesDia) || esSemanaSanta(anio, mes, dia)) {
+          msgFecha.innerText = `⚠️ Atención: Esta fecha es Asueto / Vacación Oficial en El Salvador.${prefijoDia}`;
+          msgFecha.className = "text-xs mt-1 font-semibold text-amber-600 block";
+          btnGuardar.disabled = false;
+          btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
+          return;
+        }
+
+        msgFecha.innerText = `✅ Fecha disponible para agendar cita.${prefijoDia}`;
+        msgFecha.className = "text-xs mt-1 font-semibold text-emerald-600 block";
+        btnGuardar.disabled = false;
+        btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+
+      inputFecha.addEventListener('change', validarDisponibilidad);
+
+      // Guardar/Actualizar
+      const form = document.getElementById('citaForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!db) return alert("Base de datos no conectada.");
+
+        const editId = document.getElementById('editId').value;
+        const datosCita = {
+          paciente: document.getElementById('paciente').value.trim().toUpperCase(),
+          dui: document.getElementById('dui').value,
+          telefono: document.getElementById('telefono').value,
+          registro: document.getElementById('registro').value,
+          doctor: document.getElementById('doctor').value,
+          fecha: document.getElementById('fecha').value,
+          anio: document.getElementById('anio').value,
+          estado: document.getElementById('estado').value
+        };
+
+        try {
+          if (editId) {
+            await updateDoc(doc(db, "citas", editId), datosCita);
+            cancelarEdicion();
+          } else {
+            datosCita.creadoEn = new Date();
+            await addDoc(collection(db, "citas"), datosCita);
+            form.reset();
+            msgFecha.className = "hidden";
+            document.getElementById('anio').value = "2026";
+          }
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      });
+
+      // Cargar Datos y Gestión de Filtros
+      let todasLasCitas = [];
+      let citasCache = {};
+
+      function cargarCitas() {
+        onSnapshot(collection(db, "citas"), (snapshot) => {
+          todasLasCitas = [];
+          citasCache = {};
+
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data.id = docSnap.id;
+            todasLasCitas.push(data);
+            citasCache[docSnap.id] = data;
+          });
+
+          aplicarFiltros();
+        });
+      }
+
+      window.aplicarFiltros = () => {
+        const docFiltro = document.getElementById('filtroDoctor').value;
+        const fechaFiltro = document.getElementById('filtroFecha').value;
+        const regFiltro = document.getElementById('filtroRegistro').value.trim().toUpperCase();
+        const pacFiltro = document.getElementById('filtroPaciente').value.trim().toUpperCase();
+
+        const citasFiltradas = todasLasCitas.filter(cita => {
+          const coincideDoc = !docFiltro || cita.doctor === docFiltro;
+          const coincideFecha = !fechaFiltro || cita.fecha === fechaFiltro;
+          const coincideReg = !regFiltro || (cita.registro && cita.registro.toUpperCase().includes(regFiltro));
+          const coincidePac = !pacFiltro || (cita.paciente && cita.paciente.toUpperCase().includes(pacFiltro));
+
+          return coincideDoc && coincideFecha && coincideReg && coincidePac;
+        });
+
+        renderizarTabla(citasFiltradas);
+      };
+
+      // Función formateadora a DD/MM/AAAA
+      function formatearFechaLatina(fechaISO) {
+        if (!fechaISO) return '';
+        const partes = fechaISO.split('-');
+        if (partes.length !== 3) return fechaISO;
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+
+      function renderizarTabla(citas) {
+        const tabla = document.getElementById('tablaCitas');
+        const contador = document.getElementById('contadorCitas');
+        tabla.innerHTML = '';
+        contador.innerText = `${citas.length} cita(s)`;
+
+        if (citas.length === 0) {
+          tabla.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400 italic">No se encontraron citas con los filtros seleccionados.</td></tr>`;
+          return;
+        }
+
+        citas.forEach((data) => {
+          const tr = document.createElement('tr');
+          tr.className = "border-b hover:bg-slate-50 text-slate-700";
+
+          let estadoColor = "bg-amber-100 text-amber-800";
+          if (data.estado === "Atendido") estadoColor = "bg-emerald-100 text-emerald-800";
+          if (data.estado === "Agendado") estadoColor = "bg-blue-100 text-blue-800";
+
+          // Formato de fecha DD/MM/AAAA y resaltado ÚNICAMENTE si es el Dr. Hurtarte
+          let estiloFecha = "font-medium";
+          const fechaFormateada = formatearFechaLatina(data.fecha);
+
+          if (data.fecha && data.doctor === "Dr. Hurtarte") {
+            const partes = data.fecha.split('-');
+            const f = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+            if (f.getDay() === 1 || f.getDay() === 3) {
+              estiloFecha = "font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded";
+            }
+          }
+
+          tr.innerHTML = `
+            <td class="p-3"><span class="${estiloFecha}">${fechaFormateada}</span></td>
+            <td class="p-3 font-semibold uppercase">${data.paciente || ''}</td>
+            <td class="p-3 text-xs text-slate-500">${data.dui || '-'}<br>${data.telefono || '-'}</td>
+            <td class="p-3 text-xs font-mono font-bold">${data.registro || '-'}</td>
+            <td class="p-3 font-normal text-slate-800">${data.doctor || ''}</td>
+            <td class="p-3"><span class="text-xs px-2 py-1 rounded-full font-medium ${estadoColor}">${data.estado || 'Agendado'}</span></td>
+            <td class="p-3 text-center space-x-1">
+              <button onclick="prepararEdicion('${data.id}')" class="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2 py-1 rounded font-medium">Editar</button>
+              <button onclick="eliminarCita('${data.id}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded font-medium">Eliminar</button>
+            </td>
+          `;
+          tabla.appendChild(tr);
+        });
+      }
+
+      window.limpiarFiltros = () => {
+        document.getElementById('filtroDoctor').value = "";
+        document.getElementById('filtroFecha').value = "";
+        document.getElementById('filtroRegistro').value = "";
+        document.getElementById('filtroPaciente').value = "";
+        aplicarFiltros();
+      };
+
+      window.toggleFiltros = () => {
+        const panel = document.getElementById('panelFiltros');
+        const icono = document.getElementById('iconoFiltro');
+        if (panel.classList.contains('hidden')) {
+          panel.classList.remove('hidden');
+          icono.innerText = "▲ Plegar";
+        } else {
+          panel.classList.add('hidden');
+          icono.innerText = "▼ Desplegar";
+        }
+      };
+
+      window.prepararEdicion = (id) => {
+        const cita = citasCache[id];
+        if (!cita) return;
+
+        document.getElementById('editId').value = id;
+        document.getElementById('paciente').value = cita.paciente || '';
+        document.getElementById('dui').value = cita.dui || '';
+        document.getElementById('telefono').value = cita.telefono || '';
+        document.getElementById('registro').value = cita.registro || '';
+        document.getElementById('doctor').value = cita.doctor || '';
+        document.getElementById('fecha').value = cita.fecha || '';
+        document.getElementById('anio').value = cita.anio || '2026';
+        document.getElementById('estado').value = cita.estado || 'Agendado';
+
+        document.getElementById('formTitulo').innerText = "Editar Cita Médica";
+        document.getElementById('btnGuardar').innerText = "Actualizar Cita";
+        document.getElementById('btnGuardar').className = "w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-md transition duration-200";
+        document.getElementById('btnCancelarEdicion').classList.remove('hidden');
+
+        validarDisponibilidad();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      window.cancelarEdicion = () => {
+        form.reset();
+        document.getElementById('editId').value = "";
+        document.getElementById('formTitulo').innerText = "Agendar Nueva Cita";
+        document.getElementById('btnGuardar').innerText = "Guardar Cita";
+        document.getElementById('btnGuardar').className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200";
+        document.getElementById('btnCancelarEdicion').classList.add('hidden');
+        msgFecha.className = "hidden";
+        document.getElementById('anio').value = "2026";
+      };
+
+      window.eliminarCita = async (id) => {
+        if (confirm("¿Deseas eliminar este registro de cita?")) {
+          await deleteDoc(doc(db, "citas", id));
+        }
+      };
+    </script>
+</body>
+</html>
