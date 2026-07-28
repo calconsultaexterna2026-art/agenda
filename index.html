@@ -55,6 +55,7 @@
             
             <form id="citaForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                 <input type="hidden" id="editId" value="">
+                <input type="hidden" id="anio" value="2026">
 
                 <!-- Nombre del Paciente -->
                 <div class="sm:col-span-2">
@@ -100,18 +101,6 @@
                     <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Fecha de Cita</label>
                     <input type="date" id="fecha" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
                     <p id="msgFecha" class="text-[10px] mt-0.5 font-semibold hidden"></p>
-                </div>
-
-                <!-- Selector de Año -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Año</label>
-                    <select id="anio" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-                        <option value="2026" selected>2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
-                        <option value="2029">2029</option>
-                        <option value="2030">2030</option>
-                    </select>
                 </div>
 
                 <!-- Estado -->
@@ -273,6 +262,7 @@
         const diaSemana = fechaSeleccionada.getDay();
         const mesDia = `${partes[1]}-${partes[2]}`;
 
+        // Asignación automática del año oculto
         document.getElementById('anio').value = anio.toString();
 
         if (diaSemana === 0 || diaSemana === 6) {
