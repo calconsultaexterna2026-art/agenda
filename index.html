@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agenda Médica - Control de Citas</title>
     
-    <!-- Configuración para App Móvil Nactiva (iOS / Android) -->
+    <!-- Configuración para App Móvil Nativa (iOS / Android) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Agenda Médica">
@@ -47,7 +47,7 @@
         }
         .tabla-responsive tbody td.td-acciones {
           justify-content: flex-end;
-          border-t: 1px solid #f1f5f9;
+          border-top: 1px solid #f1f5f9;
           margin-top: 0.5rem;
           padding-top: 0.625rem;
         }
@@ -210,31 +210,34 @@
             </div>
         </div>
 
-        <!-- Vista de Citas (Tabla/Tarjetas) -->
+        <!-- Vista de Citas con Contenedor de Altura Máxima y Scroll Interno -->
         <div class="bg-transparent sm:bg-white rounded-xl sm:shadow-sm sm:p-6 sm:border sm:border-slate-200/60">
             <div class="flex justify-between items-center mb-3 sm:mb-4 px-1 sm:px-0">
                 <h2 class="text-base sm:text-lg font-semibold text-slate-700">Citas Registradas</h2>
                 <span id="contadorCitas" class="text-xs font-semibold text-slate-600 bg-white sm:bg-slate-100 px-3 py-1 rounded-full border sm:border-none shadow-sm sm:shadow-none">0 citas</span>
             </div>
 
-            <table class="w-full text-left border-collapse text-sm tabla-responsive">
-                <thead>
-                    <tr class="border-b bg-slate-50 text-slate-600 text-xs uppercase font-semibold">
-                        <th class="p-3">FECHA Y AÑO</th>
-                        <th class="p-3">PACIENTE</th>
-                        <th class="p-3">DUI / TEL.</th>
-                        <th class="p-3">REGISTRO</th>
-                        <th class="p-3">DOCTOR</th>
-                        <th class="p-3">ESTADO</th>
-                        <th class="p-3 text-center">ACCIÓN</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaCitas">
-                    <tr>
-                        <td colspan="7" class="p-4 text-center text-slate-400 italic bg-white rounded-lg sm:rounded-none">Cargando datos de Firebase...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- Contenedor con Scroll para evitar crecimiento infinito -->
+            <div class="max-h-[450px] overflow-y-auto pr-1">
+                <table class="w-full text-left border-collapse text-sm tabla-responsive">
+                    <thead class="sticky top-0 bg-slate-50 z-10">
+                        <tr class="border-b text-slate-600 text-xs uppercase font-semibold">
+                            <th class="p-3 bg-slate-50">FECHA Y AÑO</th>
+                            <th class="p-3 bg-slate-50">PACIENTE</th>
+                            <th class="p-3 bg-slate-50">DUI / TEL.</th>
+                            <th class="p-3 bg-slate-50">REGISTRO</th>
+                            <th class="p-3 bg-slate-50">DOCTOR</th>
+                            <th class="p-3 bg-slate-50">ESTADO</th>
+                            <th class="p-3 bg-slate-50 text-center">ACCIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCitas">
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-slate-400 italic bg-white rounded-lg sm:rounded-none">Cargando datos de Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -437,7 +440,7 @@
 
         citas.forEach((data) => {
           const tr = document.createElement('tr');
-          tr.className = "border-b hover:bg-slate-50 text-slate-700";
+          tr.className = "border-b hover:bg-slate-50 text-slate-700 bg-white sm:bg-transparent";
 
           let estadoColor = "bg-amber-100 text-amber-800";
           if (data.estado === "Atendido") estadoColor = "bg-emerald-100 text-emerald-800";
@@ -515,6 +518,7 @@
 
       window.cancelarEdicion = () => {
         form.reset();
+        document.getElementById('editId2']... // Se mantiene limpio por defecto
         document.getElementById('editId').value = "";
         document.getElementById('formTitulo').innerText = "Agendar Nueva Cita";
         document.getElementById('btnGuardar').innerText = "Guardar Cita";
