@@ -2,425 +2,400 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agenda Médica - Control de Citas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Citas</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Estilos Personalizados -->
     <style>
-        :root {
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --sidebar-bg: #0f172a;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-            padding-bottom: 70px;
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            color: white;
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            flex-shrink: 0;
-        }
-
-        .logo-container {
-            font-size: 15px;
-            font-weight: 800;
-            text-align: center;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: #38bdf8;
+        .navbar-brand {
+            font-weight: 700;
             letter-spacing: 0.5px;
-            text-transform: uppercase;
         }
-
-        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
-
-        .nav-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px; border-radius: 10px; font-size: 14px;
-            font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.2s;
-        }
-
-        .nav-item.active { background: var(--primary); color: white; font-weight: 600; }
-        .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: #f1f5f9; }
-
-        .cloud-badge {
-            margin-top: auto; padding: 10px; border-radius: 8px;
-            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #10b981; font-size: 11px; text-align: center; font-weight: 700;
-        }
-
-        .main-wrapper { flex: 1; padding: 20px 16px; overflow-x: hidden; width: 100%; }
-
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; }
-        .top-header h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.3; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         .card {
-            background: var(--card-bg); border-radius: 16px; padding: 18px;
-            border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 16px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-
-        .form-section-title {
-            font-size: 11px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.5px; color: var(--primary); margin-bottom: 14px; display: block;
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #edf2f7;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+            font-weight: 600;
         }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group.full { grid-column: span 2; }
-
-        label { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
-        input, select, textarea {
-            padding: 10px; border: 1px solid var(--border); border-radius: 8px;
-            font-size: 13px; outline: none; background: #f8fafc; font-weight: 600;
-            width: 100%; font-family: 'Inter', sans-serif;
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 8px;
         }
-
-        .table-responsive { width: 100%; overflow-x: auto; max-height: 480px; overflow-y: auto; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 9px 10px; font-size: 11px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
-        .data-table th { background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 10px; white-space: nowrap; position: sticky; top: 0; }
-
-        .action-btns { display: flex; gap: 8px; margin-top: 16px; }
-        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #059669; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-warning:hover { background: #d97706; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 6px; }
-
-        .search-box { margin-bottom: 14px; display: flex; gap: 8px; }
-        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 12px; }
-
-        .badge-isbm { font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 3px 6px; border-radius: 6px; display: inline-block; }
-        .badge-fonat { font-weight: 700; color: #d97706; background: #fef3c7; padding: 3px 6px; border-radius: 6px; display: inline-block; }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; padding-bottom: 80px; }
-            .sidebar {
-                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 65px;
-                flex-direction: row; padding: 6px 12px; justify-content: space-around;
-                align-items: center; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.1);
-                background: #090d16;
-            }
-            .logo-container, .cloud-badge { display: none; }
-            .nav-menu { flex-direction: row; width: 100%; justify-content: space-around; gap: 0; }
-            .nav-item { flex-direction: column; font-size: 10px; padding: 6px 8px; gap: 3px; text-align: center; border-radius: 8px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-group.full { grid-column: span 1; }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="logo-container">Agenda Médica</div>
-    <div class="nav-menu">
-        <div class="nav-item active" onclick="switchTab('nueva-cita', this)">
-            <span>➕</span><span>Agendar Cita</span>
+    <!-- Barra Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas
+            </a>
         </div>
-        <div class="nav-item" onclick="switchTab('historial-citas', this)">
-            <span>📋</span><span>Consultar Agenda</span>
-        </div>
-    </div>
-    <div class="cloud-badge">☁️ Sincronizado</div>
-</div>
+    </nav>
 
-<div class="main-wrapper">
-    
-    <!-- TAB 1: NUEVA CITA -->
-    <div id="nueva-cita" class="tab-content active">
-        <div class="top-header">
-            <div>
-                <h1>REGISTRAR NUEVA CITA MÉDICA</h1>
-            </div>
-        </div>
+    <!-- Contenedor Principal -->
+    <div class="container-fluid px-4">
+        <div class="row g-4">
+            
+            <!-- Columna Izquierda: Formulario de Registro -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header py-3 text-primary">
+                        <i class="fa-solid fa-user-plus me-2"></i> Nueva Cita
+                    </div>
+                    <div class="card-body">
+                        <form id="formCita">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Nombre del Paciente</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtNombre" placeholder="Ej. JUAN PÉREZ" style="text-transform: uppercase;" required>
+                                </div>
+                            </div>
 
-        <div class="card" style="max-width: 700px; margin: 0 auto;">
-            <span class="form-section-title" id="form-title-label">DATOS DEL PACIENTE Y CITA</span>
-            <input type="hidden" id="edit-id" value="">
-            <div class="form-grid">
-                <div class="form-group full">
-                    <label>Nombre del Paciente</label>
-                    <input type="text" id="cita-paciente" placeholder="Ej. Juan Pérez">
-                </div>
-                <div class="form-group">
-                    <label>N° de DUI</label>
-                    <input type="text" id="cita-dui" placeholder="00000000-0" maxlength="10">
-                </div>
-                <div class="form-group">
-                    <label>Doctor Asignado</label>
-                    <select id="cita-doctor">
-                        <option value="Dr. Hurtarte">Dr. Hurtarte (Lunes y Miércoles)</option>
-                        <option value="Dr. 2">Dr. 2</option>
-                        <option value="Dr. 3">Dr. 3</option>
-                        <option value="Dr. 4">Dr. 4</option>
-                        <option value="Dr. 5">Dr. 5</option>
-                        <option value="Dr. 6">Dr. 6</option>
-                        <option value="Dr. 7">Dr. 7</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Institución</label>
-                    <select id="cita-institucion">
-                        <option value="ISBM">ISBM</option>
-                        <option value="FONAT">FONAT</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha de la Cita</label>
-                    <input type="date" id="cita-fecha">
-                </div>
-                <div class="form-group">
-                    <label>Hora</label>
-                    <input type="time" id="cita-hora">
-                </div>
-            </div>
-            <div class="action-btns">
-                <button class="btn btn-primary" style="width: 100%;" id="btn-guardar-actualizar" onclick="guardarCita()">💾 Guardar Cita</button>
-                <button class="btn btn-danger" style="display: none;" id="btn-cancelar-edicion" onclick="limpiarFormulario()">❌ Cancelar</button>
-            </div>
-        </div>
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">DUI</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-id-card text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtDui" placeholder="00000000-0" maxlength="10" required>
+                                </div>
+                            </div>
 
-    <!-- TAB 2: CONSULTAR AGENDA -->
-    <div id="historial-citas" class="tab-content">
-        <div class="top-header">
-            <div>
-                <h1>AGENDA DE PACIENTES</h1>
-                <p>Control por paciente, doctor, DUI o institución</p>
-            </div>
-        </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-phone text-muted"></i></span>
+                                    <input type="tel" class="form-control" id="txtTelefono" placeholder="70000000" maxlength="8" required>
+                                </div>
+                            </div>
 
-        <div class="card">
-            <div class="search-box">
-                <input type="text" id="input-busqueda" placeholder="🔍 Buscar por paciente, DUI, doctor o fecha..." oninput="filtrarCitas()">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">N° de Registro</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-file-medical text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtRegistro" placeholder="REG-2026" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Seleccionar Médico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-doctor text-muted"></i></span>
+                                    <select class="form-select" id="cmbMedicos" required>
+                                        <option value="" selected disabled>Elija un especialista...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold">Fecha de la Cita (Calendario)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                                    <input type="date" class="form-control" id="dateCita" required>
+                                </div>
+                                <div class="form-text text-muted small">No disponible fines de semana ni días asuetos.</div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Paciente / DUI</th>
-                            <th>Doctor</th>
-                            <th>Institución</th>
-                            <th>Fecha y Hora</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-citas"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDJnpVBknIaxZpnA7Mp_drKtU_K5beCeKw",
-        authDomain: "imporsalv-935e2.firebaseapp.com",
-        projectId: "imporsalv-935e2",
-        storageBucket: "imporsalv-935e2.firebasestorage.app",
-        messagingSenderId: "464657083645",
-        appId: "1:464657083645:web:d968f41e7dd3cd1c9be294"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let listaCitas = [];
-
-    // Autoformato de DUI (00000000-0)
-    document.getElementById('cita-dui').addEventListener('input', function (e) {
-        let val = e.target.value.replace(/\D/g, '');
-        if (val.length > 8) {
-            val = val.slice(0, 8) + '-' + val.slice(8, 9);
-        }
-        e.target.value = val;
-    });
-
-    db.collection('agenda_medica').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-        listaCitas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderizarTabla(listaCitas);
-    });
-
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(element) element.classList.add('active');
-    }
-
-    function guardarCita() {
-        let editId = document.getElementById('edit-id').value;
-        let paciente = document.getElementById('cita-paciente').value.trim();
-        let dui = document.getElementById('cita-dui').value.trim();
-        let doctor = document.getElementById('cita-doctor').value;
-        let institucion = document.getElementById('cita-institucion').value;
-        let fechaInput = document.getElementById('cita-fecha').value;
-        let hora = document.getElementById('cita-hora').value;
-
-        if(!paciente || !fechaInput || !hora) {
-            alert('Por favor complete los campos obligatorios: Paciente, Fecha y Hora.');
-            return;
-        }
-
-        // Validaciones de día y restricciones médicas
-        let fechaObj = new Date(fechaInput + 'T00:00:00');
-        let diaSemana = fechaObj.getDay(); // 0: Domingo, 6: Sábado
-
-        if (diaSemana === 0 || diaSemana === 6) {
-            alert('⚠️ No se pueden programar citas los fines de semana.');
-            return;
-        }
-
-        if (doctor === 'Dr. Hurtarte' && diaSemana !== 1 && diaSemana !== 3) {
-            alert('⚠️ El Dr. Hurtarte solo atiende los días Lunes y Miércoles.');
-            return;
-        }
-
-        let anio = fechaObj.getFullYear();
-        let mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
-        let dia = String(fechaObj.getDate()).padStart(2, '0');
-        let fechaFormateada = `${dia}/${mes}/${anio}`;
-
-        let data = {
-            paciente: paciente.toUpperCase(),
-            dui: dui || 'N/D',
-            doctor,
-            institucion,
-            fecha: fechaFormateada,
-            fechaOriginal: fechaInput,
-            hora,
-            timestamp: Date.now()
-        };
-
-        if(editId) {
-            db.collection('agenda_medica').doc(editId).update(data).then(() => {
-                alert('✅ Cita actualizada correctamente');
-                limpiarFormulario();
-                switchTab('historial-citas', document.querySelectorAll('.nav-item')[1]);
-            }).catch(err => alert('Error al actualizar: ' + err.message));
-        } else {
-            db.collection('agenda_medica').add(data).then(() => {
-                alert('✅ Cita agendada correctamente');
-                limpiarFormulario();
-                switchTab('historial-citas', document.querySelectorAll('.nav-item')[1]);
-            }).catch(err => alert('Error al guardar: ' + err.message));
-        }
-    }
-
-    function renderizarTabla(citas) {
-        let tbody = document.getElementById('tabla-citas');
-        if(citas.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No hay citas registradas.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = citas.map(item => {
-            let institucionClase = item.institucion === 'FONAT' ? 'badge-fonat' : 'badge-isbm';
-            let instTexto = item.institucion || 'ISBM';
-            let infoPaciente = `<strong>${item.paciente}</strong><br><small style="color:var(--text-muted);">DUI: ${item.dui || 'N/D'}</small>`;
-
-            return `
-                <tr>
-                    <td>${infoPaciente}</td>
-                    <td>${item.doctor}</td>
-                    <td><span class="${institucionClase}">${instTexto}</span></td>
-                    <td>${item.fecha} - ${item.hora}</td>
-                    <td>
-                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                            <button class="btn btn-warning btn-sm" onclick="cargarEdicion('${item.id}')" type="button">✏️ Editar</button>
-                            <button class="btn btn-danger btn-sm" onclick="borrarCita('${item.id}')" type="button">🗑️ Borrar</button>
+            <!-- Columna Derecha: Filtros y Tabla de Pacientes Agendados -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center text-primary">
+                        <span><i class="fa-solid fa-clipboard-list me-2"></i> Agenda de Pacientes</span>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Panel de Filtros de Búsqueda -->
+                        <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Buscar Paciente / DUI</label>
+                                <input type="text" class="form-control" id="txtBuscar" placeholder="Escribe para buscar...">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Filtrar por Médico</label>
+                                <select class="form-select" id="cmbFiltroMedico">
+                                    <option value="">Todos los médicos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Filtrar por Fecha</label>
+                                <input type="date" class="form-control" id="dateFiltro">
+                            </div>
                         </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    }
 
-    function filtrarCitas() {
-        let texto = document.getElementById('input-busqueda').value.toLowerCase();
-        let filtradas = listaCitas.filter(item => {
-            return (item.paciente && item.paciente.toLowerCase().includes(texto)) ||
-                   (item.dui && item.dui.toLowerCase().includes(texto)) ||
-                   (item.doctor && item.doctor.toLowerCase().includes(texto)) ||
-                   (item.institucion && item.institucion.toLowerCase().includes(texto)) ||
-                   (item.fecha && item.fecha.toLowerCase().includes(texto));
+                        <!-- Tabla de Datos -->
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Paciente</th>
+                                        <th>DUI</th>
+                                        <th>Teléfono</th>
+                                        <th>Registro</th>
+                                        <th>Médico</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCitasBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No hay citas registradas aún.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script de Lógica e Interactividad -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const medicosLista = [
+                "Dr. Ávalos",
+                "Dr. González",
+                "Dr. Reyes",
+                "Dr. Mendoza",
+                "Dr. Hurtarte",
+                "Dra. Molina",
+                "Dra. Flores"
+            ];
+
+            let citas = [];
+
+            const formCita = document.getElementById('formCita');
+            const cmbMedicos = document.getElementById('cmbMedicos');
+            const cmbFiltroMedico = document.getElementById('cmbFiltroMedico');
+            const tablaCitasBody = document.getElementById('tablaCitasBody');
+            
+            const txtNombre = document.getElementById('txtNombre');
+            const txtDui = document.getElementById('txtDui');
+            const txtTelefono = document.getElementById('txtTelefono');
+            const txtRegistro = document.getElementById('txtRegistro');
+            const dateCita = document.getElementById('dateCita');
+            
+            const txtBuscar = document.getElementById('txtBuscar');
+            const dateFiltro = document.getElementById('dateFiltro');
+
+            // Forzar mayúsculas en tiempo real al escribir el nombre
+            txtNombre.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            // Autoformato del DUI: coloca el guion automáticamente antes del último dígito
+            txtDui.addEventListener('input', (e) => {
+                let val = e.target.value.replace(/[^0-9]/g, '');
+                if (val.length > 8) {
+                    val = val.slice(0, 8) + '-' + val.slice(8, 9);
+                }
+                e.target.value = val;
+            });
+
+            // Teléfono solo números (máximo 8 dígitos)
+            txtTelefono.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+            });
+
+            // Asuetos fijos nacionales en El Salvador (Mes-Día)
+            const asuetosFijos = [
+                "01-01", // Año Nuevo
+                "05-01", // Día del Trabajo
+                "05-10", // Día de la Madre
+                "06-17", // Día del Padre
+                "08-05", // Fiestas Agostinas
+                "08-06", // Fiestas Agostinas
+                "09-15", // Día de la Independencia
+                "11-02", // Día de los Difuntos
+                "12-25"  // Navidad
+            ];
+
+            function esDiaInhabil(fechaStr) {
+                if (!fechaStr) return false;
+                const partes = fechaStr.split('-');
+                const mesDia = `${partes[1]}-${partes[2]}`;
+                
+                const fecha = new Date(fechaStr + 'T00:00:00');
+                const diaSemana = fecha.getDay(); // 0 = Domingo, 6 = Sábado
+
+                if (diaSemana === 0 || diaSemana === 6) return true;
+                if (asuetosFijos.includes(mesDia)) return true;
+
+                return false;
+            }
+
+            dateCita.addEventListener('change', () => {
+                const fechaSeleccionada = dateCita.value;
+                if (esDiaInhabil(fechaSeleccionada)) {
+                    alert('⚠️ No se pueden agendar citas en fines de semana o días asuetos nacionales.');
+                    dateCita.value = '';
+                }
+            });
+
+            function inicializarSelectsMedicos() {
+                medicosLista.forEach(medico => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = medico;
+                    opt1.textContent = medico;
+                    cmbMedicos.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = medico;
+                    opt2.textContent = medico;
+                    cmbFiltroMedico.appendChild(opt2);
+                });
+            }
+
+            function renderizarTabla(datosAMostrar = citas) {
+                tablaCitasBody.innerHTML = '';
+
+                if (datosAMostrar.length === 0) {
+                    tablaCitasBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No se encontraron registros de citas.</td>
+                        </tr>`;
+                    return;
+                }
+
+                datosAMostrar.forEach(cita => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td class="fw-semibold text-dark">${cita.nombre}</td>
+                        <td>${cita.dui}</td>
+                        <td>${cita.telefono}</td>
+                        <td><span class="badge bg-light text-dark border">${cita.registro}</span></td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1">${cita.medico}</span></td>
+                        <td>${cita.fecha}</td>
+                    `;
+                    tablaCitasBody.appendChild(fila);
+                });
+            }
+
+            formCita.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const nombreVal = txtNombre.value.trim();
+                const duiVal = txtDui.value.trim();
+                const telVal = txtTelefono.value.trim();
+                const regVal = txtRegistro.value.trim();
+                const fechaVal = dateCita.value;
+
+                const regexDui = /^\d{8}-\d{1}$/;
+                if (!regexDui.test(duiVal)) {
+                    alert('El DUI debe contener exactamente 8 dígitos, un guion y 1 dígito verificador (Ej: 02043231-6).');
+                    txtDui.focus();
+                    return;
+                }
+
+                if (telVal.length !== 8) {
+                    alert('El teléfono debe contener exactamente 8 dígitos.');
+                    txtTelefono.focus();
+                    return;
+                }
+
+                if (esDiaInhabil(fechaVal)) {
+                    alert('La fecha seleccionada corresponde a un fin de semana o día asueto. No se puede guardar la cita.');
+                    return;
+                }
+
+                const nuevaCita = {
+                    nombre: nombreVal,
+                    dui: duiVal,
+                    telefono: telVal,
+                    registro: regVal,
+                    medico: cmbMedicos.value,
+                    fecha: fechaVal
+                };
+
+                citas.push(nuevaCita);
+                renderizarTabla();
+                
+                txtNombre.value = '';
+                txtDui.value = '';
+                txtTelefono.value = '';
+                txtRegistro.value = '';
+                cmbMedicos.value = '';
+                dateCita.value = '';
+
+                alert('¡Cita guardada y agendada exitosamente!');
+            });
+
+            function aplicarFiltros() {
+                const textoBusqueda = txtBuscar.value.toLowerCase();
+                const medicoFiltro = cmbFiltroMedico.value;
+                const fechaFiltro = dateFiltro.value;
+
+                const citasFiltradas = citas.filter(cita => {
+                    const coincideTexto = cita.nombre.toLowerCase().includes(textoBusqueda) || 
+                                         cita.dui.toLowerCase().includes(textoBusqueda);
+                    
+                    const coincideMedico = medicoFiltro === "" || cita.medico === medicoFiltro;
+                    const coincideFecha = fechaFiltro === "" || cita.fecha === fechaFiltro;
+
+                    return coincideTexto && coincideMedico && coincideFecha;
+                });
+
+                renderizarTabla(citasFiltradas);
+            }
+
+            txtBuscar.addEventListener('input', aplicarFiltros);
+            cmbFiltroMedico.addEventListener('change', aplicarFiltros);
+            dateFiltro.addEventListener('change', aplicarFiltros);
+
+            inicializarSelectsMedicos();
+            renderizarTabla();
         });
-        renderizarTabla(filtradas);
-    }
-
-    function cargarEdicion(id) {
-        let item = listaCitas.find(l => l.id === id);
-        if(!item) return;
-
-        document.getElementById('edit-id').value = item.id;
-        document.getElementById('cita-paciente').value = item.paciente;
-        document.getElementById('cita-dui').value = item.dui !== 'N/D' ? item.dui : '';
-        document.getElementById('cita-doctor').value = item.doctor || 'Dr. Hurtarte';
-        document.getElementById('cita-institucion').value = item.institucion || 'ISBM';
-        document.getElementById('cita-fecha').value = item.fechaOriginal || '';
-        document.getElementById('cita-hora').value = item.hora;
-
-        document.getElementById('form-title-label').innerText = 'EDITAR CITA MÉDICA';
-        document.getElementById('btn-guardar-actualizar').innerText = '💾 Actualizar Cita';
-        document.getElementById('btn-cancelar-edicion').style.display = 'inline-flex';
-
-        switchTab('nueva-cita', document.querySelectorAll('.nav-item')[0]);
-    }
-
-    function limpiarFormulario() {
-        document.getElementById('edit-id').value = '';
-        document.getElementById('cita-paciente').value = '';
-        document.getElementById('cita-dui').value = '';
-        document.getElementById('cita-doctor').value = 'Dr. Hurtarte';
-        document.getElementById('cita-institucion').value = 'ISBM';
-        document.getElementById('cita-fecha').value = '';
-        document.getElementById('cita-hora').value = '';
-
-        document.getElementById('form-title-label').innerText = 'DATOS DEL PACIENTE Y CITA';
-        document.getElementById('btn-guardar-actualizar').innerText = '💾 Guardar Cita';
-        document.getElementById('btn-cancelar-edicion').style.display = 'none';
-    }
-
-    function borrarCita(id) {
-        if(confirm('¿Deseas eliminar esta cita de la agenda?')) {
-            db.collection('agenda_medica').doc(id).delete();
-        }
-    }
-</script>
+    </script>
 </body>
 </html>
