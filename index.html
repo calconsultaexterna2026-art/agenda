@@ -176,9 +176,13 @@
                     <input type="text" id="cita-paciente" placeholder="Ej. Juan Pérez">
                 </div>
                 <div class="form-group">
+                    <label>N° de DUI (Opcional)</label>
+                    <input type="text" id="cita-dui" placeholder="00000000-0">
+                </div>
+                <div class="form-group">
                     <label>Doctor Asignado</label>
                     <select id="cita-doctor">
-                        <option value="Dr. 1">Dr. 1</option>
+                        <option value="Dr. Hurtarte">Dr. Hurtarte (Lunes y Miércoles)</option>
                         <option value="Dr. 2">Dr. 2</option>
                         <option value="Dr. 3">Dr. 3</option>
                         <option value="Dr. 4">Dr. 4</option>
@@ -215,20 +219,20 @@
         <div class="top-header">
             <div>
                 <h1>AGENDA DE PACIENTES</h1>
-                <p>Control por paciente, doctor o institución</p>
+                <p>Control por paciente, doctor, DUI o institución</p>
             </div>
         </div>
 
         <div class="card">
             <div class="search-box">
-                <input type="text" id="input-busqueda" placeholder="🔍 Buscar por paciente, doctor o fecha..." oninput="filtrarCitas()">
+                <input type="text" id="input-busqueda" placeholder="🔍 Buscar por paciente, DUI, doctor o fecha..." oninput="filtrarCitas()">
             </div>
 
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Paciente</th>
+                            <th>Paciente / DUI</th>
                             <th>Doctor</th>
                             <th>Institución</th>
                             <th>Fecha y Hora</th>
@@ -273,21 +277,44 @@
     function guardarCita() {
         let editId = document.getElementById('edit-id').value;
         let paciente = document.getElementById('cita-paciente').value.trim();
+        let dui = document.getElementById('cita-dui').value.trim();
         let doctor = document.getElementById('cita-doctor').value;
         let institucion = document.getElementById('cita-institucion').value;
-        let fecha = document.getElementById('cita-fecha').value;
+        let fechaInput = document.getElementById('cita-fecha').value;
         let hora = document.getElementById('cita-hora').value;
 
-        if(!paciente || !fecha || !hora) {
-            alert('Por favor complete los campos obligatorios.');
+        if(!paciente || !fechaInput || !hora) {
+            alert('Por favor complete los campos obligatorios (Paciente, Fecha y Hora).');
             return;
         }
 
+        // Validación de restricciones por doctor (Ej. Dr. Hurtarte solo Lunes y Miércoles)
+        let fechaObj = new Date(fechaInput + 'T00:00:00');
+        let diaSemana = fechaObj.getDay(); // 0: Dom, 1: Lun, 2: Mar, 3: Mié, etc.
+
+        if (diaSemana === 0 || diaSemana === 6) {
+            alert('⚠️ No se pueden programar citas los fines de semana.');
+            return;
+        }
+
+        if (doctor === 'Dr. Hurtarte' && diaSemana !== 1 && diaSemana !== 3) {
+            alert('⚠️ El Dr. Hurtarte solo atiende los días Lunes y Miércoles.');
+            return;
+        }
+
+        // Formatear fecha a DD/MM/YYYY
+        let anio = fechaObj.getFullYear();
+        let mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+        let dia = String(fechaObj.getDate()).padStart(2, '0');
+        let fechaFormateada = `${dia}/${mes}/${anio}`;
+
         let data = {
             paciente: paciente.toUpperCase(),
+            dui: dui || 'N/D',
             doctor,
             institucion,
-            fecha,
+            fecha: fechaFormateada,
+            fechaOriginal: fechaInput,
             hora,
             timestamp: Date.now()
         };
@@ -317,10 +344,11 @@
         tbody.innerHTML = citas.map(item => {
             let institucionClase = item.institucion === 'FONAT' ? 'badge-fonat' : 'badge-isbm';
             let instTexto = item.institucion || 'ISBM';
+            let infoPaciente = `<strong>${item.paciente}</strong><br><small style="color:var(--text-muted);">DUI: ${item.dui || 'N/D'}</small>`;
 
             return `
                 <tr>
-                    <td><strong>${item.paciente}</strong></td>
+                    <td>${infoPaciente}</td>
                     <td>${item.doctor}</td>
                     <td><span class="${institucionClase}">${instTexto}</span></td>
                     <td>${item.fecha} - ${item.hora}</td>
@@ -339,9 +367,10 @@
         let texto = document.getElementById('input-busqueda').value.toLowerCase();
         let filtradas = listaCitas.filter(item => {
             return (item.paciente && item.paciente.toLowerCase().includes(texto)) ||
+                   (item.dui && item.dui.toLowerCase().includes(texto)) ||
                    (item.doctor && item.doctor.toLowerCase().includes(texto)) ||
                    (item.institucion && item.institucion.toLowerCase().includes(texto)) ||
-                   (item.fecha && item.fecha.includes(texto));
+                   (item.fecha && item.fecha.toLowerCase().includes(texto));
         });
         renderizarTabla(filtradas);
     }
@@ -352,9 +381,10 @@
 
         document.getElementById('edit-id').value = item.id;
         document.getElementById('cita-paciente').value = item.paciente;
-        document.getElementById('cita-doctor').value = item.doctor || 'Dr. 1';
+        document.getElementById('cita-dui').value = item.dui !== 'N/D' ? item.dui : '';
+        document.getElementById('cita-doctor').value = item.doctor || 'Dr. Hurtarte';
         document.getElementById('cita-institucion').value = item.institucion || 'ISBM';
-        document.getElementById('cita-fecha').value = item.fecha;
+        document.getElementById('cita-fecha').value = item.fechaOriginal || '';
         document.getElementById('cita-hora').value = item.hora;
 
         document.getElementById('form-title-label').innerText = 'EDITAR CITA MÉDICA';
@@ -367,7 +397,8 @@
     function limpiarFormulario() {
         document.getElementById('edit-id').value = '';
         document.getElementById('cita-paciente').value = '';
-        document.getElementById('cita-doctor').value = 'Dr. 1';
+        document.getElementById('cita-dui').value = '';
+        document.getElementById('cita-doctor').value = 'Dr. Hurtarte';
         document.getElementById('cita-institucion').value = 'ISBM';
         document.getElementById('cita-fecha').value = '';
         document.getElementById('cita-hora').value = '';
