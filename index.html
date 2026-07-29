@@ -3,447 +3,464 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agenda Médica - Control de Citas</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Agenda Médica">
-    <meta name="theme-color" content="#f8fafc">
+    <title>REGISTRAR REFERENCIA DE SUBASTA Historial de precios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
-      @media (max-width: 639px) {
-        .tabla-responsive thead { display: none; }
-        .tabla-responsive tbody tr {
-          display: block; margin-bottom: 0.6rem; background-color: #ffffff;
-          border: 1px solid #e2e8f0; border-radius: 0.375rem; padding: 0.5rem;
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --sidebar-bg: #0f172a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
-        .tabla-responsive tbody td {
-          display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border: none; text-align: right;
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            padding-bottom: 70px;
         }
-        .tabla-responsive tbody td::before {
-          content: attr(data-label); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: #64748b; text-align: left;
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex-shrink: 0;
         }
-        .tabla-responsive tbody td.td-acciones {
-          justify-content: flex-end; border-top: 1px solid #f1f5f9; margin-top: 0.35rem; padding-top: 0.4rem;
+
+        .logo-container {
+            font-size: 15px;
+            font-weight: 800;
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
-      }
+
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: 10px; font-size: 14px;
+            font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        }
+
+        .nav-item.active { background: var(--primary); color: white; font-weight: 600; }
+        .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: #f1f5f9; }
+
+        .cloud-badge {
+            margin-top: auto; padding: 10px; border-radius: 8px;
+            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981; font-size: 11px; text-align: center; font-weight: 700;
+        }
+
+        .main-wrapper { flex: 1; padding: 20px 16px; overflow-x: hidden; width: 100%; }
+
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; }
+        .top-header h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.3; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 18px;
+            border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 16px;
+        }
+
+        .form-section-title {
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--primary); margin-bottom: 14px; display: block;
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: span 2; }
+
+        label { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+        input, select, textarea {
+            padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13px; outline: none; background: #f8fafc; font-weight: 600;
+            width: 100%; font-family: 'Inter', sans-serif;
+        }
+
+        .input-with-symbol {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-with-symbol span {
+            position: absolute;
+            left: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .input-with-symbol input {
+            padding-left: 24px;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; max-height: 480px; overflow-y: auto; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 9px 10px; font-size: 11px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+        .data-table th { background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 10px; white-space: nowrap; position: sticky; top: 0; }
+
+        .action-btns { display: flex; gap: 8px; margin-top: 16px; }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 6px; }
+
+        .search-box { margin-bottom: 14px; display: flex; gap: 8px; }
+        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 12px; }
+
+        .badge-price { font-weight: 700; color: #047857; background: #ecfdf5; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+        .badge-limit { font-weight: 700; color: #b45309; background: #fffbeb; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+
+        .badge-isbm { font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+        .badge-fonat { font-weight: 700; color: #d97706; background: #fef3c7; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+
+        .bidcars-banner {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white; border-radius: 12px; padding: 14px 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+            gap: 10px; flex-wrap: wrap;
+        }
+        .bidcars-banner span { font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; padding-bottom: 80px; }
+            .sidebar {
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 65px;
+                flex-direction: row; padding: 6px 12px; justify-content: space-around;
+                align-items: center; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.1);
+                background: #090d16;
+            }
+            .logo-container, .cloud-badge { display: none; }
+            .nav-menu { flex-direction: row; width: 100%; justify-content: space-around; gap: 0; }
+            .nav-item { flex-direction: column; font-size: 10px; padding: 6px 8px; gap: 3px; text-align: center; border-radius: 8px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+        }
     </style>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen antialiased text-slate-800 text-sm">
+<body>
 
-    <div class="max-w-5xl mx-auto p-2 sm:p-4">
-        <!-- Encabezado Compacto -->
-        <header class="mb-3 border-b pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
+<div class="sidebar">
+    <div class="logo-container">Historial de precios</div>
+    <div class="nav-menu">
+        <div class="nav-item active" onclick="switchTab('nuevo-lote', this)">
+            <span>➕</span><span>Registrar Lote</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('historial-general', this)">
+            <span>📋</span><span>Historial / Precios</span>
+        </div>
+    </div>
+    <div class="cloud-badge">☁️ Sincronizado</div>
+</div>
+
+<div class="main-wrapper">
+    
+    <!-- TAB 1: NUEVO LOTE -->
+    <div id="nuevo-lote" class="tab-content active">
+        <div class="top-header">
             <div>
-                <h1 class="text-lg sm:text-xl font-bold text-slate-800">Control de Agenda Médica</h1>
-                <p class="text-xs text-slate-500">Gestión institucional de citas y pacientes</p>
+                <h1>REGISTRAR REFERENCIA DE SUBASTA</h1>
             </div>
-            <div id="statusBadge" class="text-[11px] bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full font-medium">
-                Conectando...
-            </div>
-        </header>
-
-        <!-- Formulario Compacto -->
-        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-3 border border-slate-200/60">
-            <div class="flex justify-between items-center mb-2">
-                <h2 id="formTitulo" class="text-sm sm:text-base font-semibold text-slate-700">Agendar Nueva Cita</h2>
-                <button id="btnCancelarEdicion" onclick="cancelarEdicion()" class="hidden text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 px-2.5 py-1 rounded font-medium">
-                    Cancelar
-                </button>
-            </div>
-            
-            <form id="citaForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
-                <input type="hidden" id="editId" value="">
-                <input type="hidden" id="anio" value="2026">
-
-                <!-- Nombre del Paciente -->
-                <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nombre del Paciente</label>
-                    <input type="text" id="paciente" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none uppercase" placeholder="EJ. JOSE ALFREDO JIMENEZ">
-                </div>
-
-                <!-- DUI -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">DUI (00000000-0)</label>
-                    <input type="text" id="dui" maxlength="10" placeholder="02043231-6" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
-                </div>
-
-                <!-- Teléfono -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Teléfono (8 dígitos)</label>
-                    <input type="tel" id="telefono" maxlength="8" placeholder="74803608" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
-                </div>
-
-                <!-- N° de Registro -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">N° Registro (XXXXX-AAAA)</label>
-                    <input type="text" id="registro" placeholder="40093-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
-                </div>
-
-                <!-- Médico Asignado -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Médico Asignado</label>
-                    <select id="doctor" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-                        <option value="">Seleccione Médico...</option>
-                        <option value="Dr. Reyes">Dr. Reyes</option>
-                        <option value="Dra. Molina">Dra. Molina</option>
-                        <option value="Dr. Gonzalez">Dr. Gonzalez</option>
-                        <option value="Dr. Avalos">Dr. Avalos</option>
-                        <option value="Dr. Hurtarte">🔴 Dr. Hurtarte (Lunes/Miércoles)</option>
-                        <option value="Dra. Flores">Dra. Flores</option>
-                        <option value="Dr. Mendoza">Dr. Mendoza</option>
-                    </select>
-                </div>
-
-                <!-- Fecha -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Fecha de Cita</label>
-                    <input type="date" id="fecha" required class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-                    <p id="msgFecha" class="text-[10px] mt-0.5 font-semibold hidden"></p>
-                </div>
-
-                <!-- Estado -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Estado</label>
-                    <select id="estado" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-                        <option value="Agendado">Agendado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Atendido">Atendido</option>
-                    </select>
-                </div>
-
-                <!-- Botón Guardar -->
-                <div class="sm:col-span-2 md:col-span-4 mt-1">
-                    <button type="submit" id="btnGuardar" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded text-xs transition duration-200 active:scale-[0.99]">
-                        Guardar Cita
-                    </button>
-                </div>
-            </form>
         </div>
 
-        <!-- SECCIÓN DE CITAS Y FILTROS INTEGRADOS -->
-        <div class="bg-transparent sm:bg-white rounded-lg sm:shadow-sm sm:p-4 sm:border sm:border-slate-200/60">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 px-1 sm:px-0">
-                <div class="flex items-center space-x-1.5">
-                    <span class="text-blue-600 font-bold text-xs">🔍</span>
-                    <h2 class="text-xs sm:text-sm font-semibold text-slate-700">Citas Registradas y Filtros</h2>
-                </div>
-                <span id="contadorCitas" class="text-[11px] font-semibold text-slate-600 bg-white sm:bg-slate-100 px-2.5 py-0.5 rounded-full border sm:border-none">0 citas</span>
+        <!-- Acceso Rápido masivo -->
+        <div class="card" style="max-width: 700px; margin: 0 auto 16px auto; background: #f0f9ff; border-color: #bae6fd;">
+            <span class="form-section-title" style="color: #0369a1;">🚀 Acceso Rápido: Pega una lista de lotes</span>
+            <div class="form-group full" style="margin-bottom: 10px;">
+                <label>Pega aquí varios números de lote (separados por espacio, comas o saltos de línea)</label>
+                <textarea id="lista-lotes-pegados" rows="2" placeholder="Ej. 55042316, 58492011" oninput="procesarLotesPegados()"></textarea>
             </div>
+            <div id="contenedor-botones-masivos" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
 
-            <!-- Filtros Integrados Justo Arriba de la Tabla para el Gran Listado -->
-            <div class="bg-slate-50 p-2.5 sm:p-3 rounded-md border border-slate-200 mb-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Filtrar por Médico</label>
-                    <select id="filtroDoctor" onchange="aplicarFiltros()" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white">
-                        <option value="">Todos los médicos</option>
-                        <option value="Dr. Reyes">Dr. Reyes</option>
-                        <option value="Dra. Molina">Dra. Molina</option>
-                        <option value="Dr. Gonzalez">Dr. Gonzalez</option>
-                        <option value="Dr. Avalos">Dr. Avalos</option>
-                        <option value="Dr. Hurtarte">🔴 Dr. Hurtarte (Lunes/Miércoles)</option>
-                        <option value="Dra. Flores">Dra. Flores</option>
-                        <option value="Dr. Mendoza">Dr. Mendoza</option>
+        <div class="card" style="max-width: 700px; margin: 0 auto;">
+            <span class="form-section-title" id="form-title-label">DATOS DEL VEHÍCULO Y VALORES</span>
+            <input type="hidden" id="edit-id" value="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="number" id="veh-anio" placeholder="Ej. 2021">
+                </div>
+                <div class="form-group">
+                    <label>Número de Lote</label>
+                    <input type="text" id="veh-lote" placeholder="Ej. 55042316">
+                </div>
+                <div class="form-group full">
+                    <label>Marca y Modelo</label>
+                    <input type="text" id="veh-modelo" placeholder="Ej. Nissan Versa">
+                </div>
+                <!-- Nuevo campo: Institución -->
+                <div class="form-group full">
+                    <label>Institución / Tipo de Paciente</label>
+                    <select id="veh-institucion">
+                        <option value="ISBM">ISBM</option>
+                        <option value="FONAT">FONAT</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Filtrar por Fecha</label>
-                    <input type="date" id="filtroFecha" onchange="aplicarFiltros()" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white">
+                <div class="form-group">
+                    <label>Precio Final Subastado ($ USD)</label>
+                    <div class="input-with-symbol">
+                        <span>$</span>
+                        <input type="number" step="any" id="veh-precio" placeholder="0.00">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Buscar por N° Registro</label>
-                    <input type="text" id="filtroRegistro" oninput="aplicarFiltros()" placeholder="Ej. 40093-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase bg-white">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Buscar Paciente</label>
-                    <input type="text" id="filtroPaciente" oninput="aplicarFiltros()" placeholder="Nombre..." class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs uppercase bg-white">
-                </div>
-                <div class="sm:col-span-2 md:col-span-4 flex justify-end">
-                    <button type="button" onclick="limpiarFiltros()" class="text-[11px] bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 px-3 py-1 rounded font-medium shadow-sm">
-                        🧹 Limpiar Filtros
-                    </button>
+                <div class="form-group">
+                    <label>Tu Tope / Puja Máxima Ideal ($ USD)</label>
+                    <div class="input-with-symbol">
+                        <span>$</span>
+                        <input type="number" step="any" id="veh-tope" placeholder="0.00">
+                    </div>
                 </div>
             </div>
+            <div class="action-btns">
+                <button class="btn btn-primary" style="width: 100%;" id="btn-guardar-actualizar" onclick="guardarLote()">💾 Guardar Referencia</button>
+                <button class="btn btn-danger" style="display: none;" id="btn-cancelar-edicion" onclick="limpiarFormulario()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-            <!-- Tabla con Scroll Interno Controlado -->
-            <div class="max-h-[380px] overflow-y-auto pr-1">
-                <table class="w-full text-left border-collapse text-xs tabla-responsive">
-                    <thead class="sticky top-0 bg-slate-50 z-10">
-                        <tr class="border-b text-slate-600 uppercase font-semibold text-[10px]">
-                            <th class="p-2 bg-slate-50">FECHA</th>
-                            <th class="p-2 bg-slate-50">PACIENTE</th>
-                            <th class="p-2 bg-slate-50">DUI / TEL.</th>
-                            <th class="p-2 bg-slate-50">REGISTRO</th>
-                            <th class="p-2 bg-slate-50">MÉDICO</th>
-                            <th class="p-2 bg-slate-50">ESTADO</th>
-                            <th class="p-2 bg-slate-50 text-center">ACCIÓN</th>
+    <!-- TAB 2: HISTORIAL Y BÚSQUEDA -->
+    <div id="historial-general" class="tab-content">
+        <div class="top-header">
+            <div>
+                <h1>HISTORIAL DE REFERENCIAS</h1>
+                <p>Búsqueda por modelo, año o número de lote</p>
+            </div>
+        </div>
+
+        <div class="bidcars-banner">
+            <span>🌐 Ir directamente a la plataforma de subastas</span>
+            <a href="https://bid.cars/en/" target="_blank" class="btn btn-sm btn-success" style="background: white; color: #0369a1; font-weight: 800;">Abrir BidCars ↗</a>
+        </div>
+
+        <div class="card">
+            <div class="search-box">
+                <input type="text" id="input-busqueda" placeholder="🔍 Escribe para buscar por modelo, año, lote..." oninput="filtrarLotes()">
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Año / Modelo</th>
+                            <th>Lote</th>
+                            <th>Institución</th>
+                            <th>Precio Subasta</th>
+                            <th>Tope Ideal</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaCitas">
-                        <tr>
-                            <td colspan="7" class="p-3 text-center text-slate-400 italic bg-white rounded">Cargando datos...</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tabla-lotes"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT PRINCIPAL -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+</div>
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyDuixL3_4MSVbVLorKtepRq2kCb1AUfeUM",
-        authDomain: "agendamedica-865ad.firebaseapp.com",
-        projectId: "agendamedica-865ad",
-        storageBucket: "agendamedica-865ad.firebasestorage.app",
-        messagingSenderId: "172417681026",
-        appId: "1:172417681026:web:465a936a7fcff46d41d69b",
-        measurementId: "G-RXBD9KR3GV"
-      };
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDJnpVBknIaxZpnA7Mp_drKtU_K5beCeKw",
+        authDomain: "imporsalv-935e2.firebaseapp.com",
+        projectId: "imporsalv-935e2",
+        storageBucket: "imporsalv-935e2.firebasestorage.app",
+        messagingSenderId: "464657083645",
+        appId: "1:464657083645:web:d968f41e7dd3cd1c9be294"
+    };
 
-      let db;
-      try {
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        document.getElementById("statusBadge").className = "text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-medium";
-        document.getElementById("statusBadge").innerText = "Firebase Conectado";
-        cargarCitas();
-      } catch (e) {
-        document.getElementById("statusBadge").className = "text-[11px] bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full font-medium";
-        document.getElementById("statusBadge").innerText = "Error de Conexión";
-      }
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-      document.getElementById('paciente').addEventListener('input', (e) => e.target.value = e.target.value.toUpperCase());
-      document.getElementById('dui').addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, ''); 
-        if (val.length > 8) val = val.substring(0, 8) + '-' + val.substring(8, 9);
-        e.target.value = val;
-      });
-      document.getElementById('telefono').addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, ''); 
-        if (val.length > 8) val = val.substring(0, 8);
-        e.target.value = val;
-      });
-      document.getElementById('registro').addEventListener('input', (e) => {
-        let val = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); 
-        if (val.length > 4) val = val.substring(0, val.length - 4) + '-' + val.substring(val.length - 4);
-        e.target.value = val.toUpperCase();
-      });
+    let listaLotes = [];
 
-      const asuetosFijosSV = ["01-01", "05-01", "05-10", "06-17", "08-01", "08-02", "08-03", "08-04", "08-05", "08-06", "09-15", "11-02", "12-25"];
+    db.collection('historial_subastas').orderBy('anio', 'desc').onSnapshot(snapshot => {
+        listaLotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderizarTabla(listaLotes);
+    });
 
-      function esSemanaSanta(year, month, day) {
-        const a = year % 19, b = Math.floor(year / 100), c = year % 100;
-        const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-        const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
-        const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-        const mesPascua = Math.floor((h + l - 7 * m + 114) / 31), diaPascua = ((h + l - 7 * m + 114) % 31) + 1;
-        const pascua = new Date(year, mesPascua - 1, diaPascua);
-        const juevesSanto = new Date(pascua); juevesSanto.setDate(pascua.getDate() - 3);
-        const viernesSanto = new Date(pascua); viernesSanto.setDate(pascua.getDate() - 2);
-        const fechaEval = new Date(year, month - 1, day);
-        return fechaEval.toDateString() === juevesSanto.toDateString() || fechaEval.toDateString() === viernesSanto.toDateString();
-      }
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(element) element.classList.add('active');
+    }
 
-      const inputFecha = document.getElementById('fecha');
-      const selectDoctor = document.getElementById('doctor');
-      const msgFecha = document.getElementById('msgFecha');
-      const btnGuardar = document.getElementById('btnGuardar');
+    function procesarLotesPegados() {
+        let texto = document.getElementById('lista-lotes-pegados').value;
+        let contenedor = document.getElementById('contenedor-botones-masivos');
+        
+        let lineas = texto.split(/[\n,]+/).map(l => l.trim()).filter(l => l.length > 0);
 
-      function validarDisponibilidad() {
-        if (!inputFecha.value) return;
-        const partes = inputFecha.value.split('-');
-        const anio = parseInt(partes[0]), mes = parseInt(partes[1]), dia = parseInt(partes[2]);
-        const fechaSeleccionada = new Date(anio, mes - 1, dia);
-        const diaSemana = fechaSeleccionada.getDay();
-        const mesDia = `${partes[1]}-${partes[2]}`;
-
-        document.getElementById('anio').value = anio.toString();
-
-        if (diaSemana === 0 || diaSemana === 6) {
-          msgFecha.innerHTML = "❌ Sábado y Domingo NO se asignan citas.";
-          msgFecha.className = "text-[10px] mt-0.5 font-semibold text-red-600 block";
-          btnGuardar.disabled = true;
-          btnGuardar.classList.add('opacity-50', 'cursor-not-allowed');
-          return;
+        if (lineas.length === 0) {
+            contenedor.innerHTML = '';
+            return;
         }
 
-        if (asuetosFijosSV.includes(mesDia) || esSemanaSanta(anio, mes, dia)) {
-          msgFecha.innerHTML = "⚠️ Asueto o Vacación Oficial en El Salvador.";
-          msgFecha.className = "text-[10px] mt-0.5 font-semibold text-amber-600 block";
-          btnGuardar.disabled = false;
-          btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
-          return;
+        contenedor.innerHTML = lineas.map(loteCrudo => {
+            let loteClean = loteCrudo.replace(/^1-/, '');
+            if(!loteClean) return '';
+            
+            return `
+                <a href="https://bid.cars/en/lot/1-${loteClean}/" target="_blank" class="btn btn-success btn-sm" style="font-weight: 700;">
+                    🌐 Lote ${loteClean} ↗
+                </a>
+            `;
+        }).join('');
+    }
+
+    function guardarLote() {
+        let editId = document.getElementById('edit-id').value;
+        let anio = document.getElementById('veh-anio').value.trim();
+        let lote = document.getElementById('veh-lote').value.trim();
+        let modelo = document.getElementById('veh-modelo').value.trim();
+        let institucion = document.getElementById('veh-institucion').value;
+        let precio = document.getElementById('veh-precio').value.trim();
+        let tope = document.getElementById('veh-tope').value.trim();
+
+        if(!anio || !modelo || !lote || !precio) {
+            alert('Por favor complete los campos obligatorios.');
+            return;
         }
 
-        msgFecha.innerHTML = "✅ Fecha disponible para agendar cita.";
-        msgFecha.className = "text-[10px] mt-0.5 font-semibold text-emerald-600 block";
-        btnGuardar.disabled = false;
-        btnGuardar.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-
-      inputFecha.addEventListener('change', validarDisponibilidad);
-
-      const form = document.getElementById('citaForm');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!db) return alert("Base de datos no conectada.");
-
-        const editId = document.getElementById('editId').value;
-        const datosCita = {
-          paciente: document.getElementById('paciente').value.trim().toUpperCase(),
-          dui: document.getElementById('dui').value,
-          telefono: document.getElementById('telefono').value,
-          registro: document.getElementById('registro').value,
-          doctor: selectDoctor.value,
-          fecha: inputFecha.value,
-          anio: document.getElementById('anio').value,
-          estado: document.getElementById('estado').value
+        let data = {
+            anio: Number(anio),
+            lote,
+            modelo: modelo.toUpperCase(),
+            institucion,
+            precio: Number(precio),
+            tope: tope ? Number(tope) : 0,
+            timestamp: Date.now()
         };
 
-        try {
-          if (editId) {
-            await updateDoc(doc(db, "citas", editId), datosCita);
-            cancelarEdicion();
-          } else {
-            datosCita.creadoEn = new Date();
-            await addDoc(collection(db, "citas"), datosCita);
-            form.reset();
-            msgFecha.className = "hidden";
-            document.getElementById('anio').value = "2026";
-          }
-        } catch (error) {
-          alert("Error: " + error.message);
+        if(editId) {
+            db.collection('historial_subastas').doc(editId).update(data).then(() => {
+                alert('✅ Referencia actualizada correctamente');
+                limpiarFormulario();
+                switchTab('historial-general', document.querySelectorAll('.nav-item')[1]);
+            });
+        } else {
+            db.collection('historial_subastas').add(data).then(() => {
+                alert('✅ Referencia guardada correctamente');
+                limpiarFormulario();
+                switchTab('historial-general', document.querySelectorAll('.nav-item')[1]);
+            });
         }
-      });
+    }
 
-      let todasLasCitas = [];
-      let citasCache = {};
-
-      function cargarCitas() {
-        onSnapshot(collection(db, "citas"), (snapshot) => {
-          todasLasCitas = [];
-          citasCache = {};
-          snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            data.id = docSnap.id;
-            todasLasCitas.push(data);
-            citasCache[docSnap.id] = data;
-          });
-          aplicarFiltros();
-        });
-      }
-
-      window.aplicarFiltros = () => {
-        const docFiltro = document.getElementById('filtroDoctor').value;
-        const fechaFiltro = document.getElementById('filtroFecha').value;
-        const regFiltro = document.getElementById('filtroRegistro').value.trim().toUpperCase();
-        const pacFiltro = document.getElementById('filtroPaciente').value.trim().toUpperCase();
-
-        const citasFiltradas = todasLasCitas.filter(cita => {
-          const coincideDoc = !docFiltro || cita.doctor === docFiltro;
-          const coincideFecha = !fechaFiltro || cita.fecha === fechaFiltro;
-          const coincideReg = !regFiltro || (cita.registro && cita.registro.toUpperCase().includes(regFiltro));
-          const coincidePac = !pacFiltro || (cita.paciente && cita.paciente.toUpperCase().includes(pacFiltro));
-          return coincideDoc && coincideFecha && coincideReg && coincidePac;
-        });
-
-        renderizarTabla(citasFiltradas);
-      };
-
-      function formatearFechaLatina(fechaISO) {
-        if (!fechaISO) return '';
-        const partes = fechaISO.split('-');
-        if (partes.length !== 3) return fechaISO;
-        return `${partes[2]}/${partes[1]}/${partes[0]}`;
-      }
-
-      function renderizarTabla(citas) {
-        const tabla = document.getElementById('tablaCitas');
-        const contador = document.getElementById('contadorCitas');
-        tabla.innerHTML = '';
-        contador.innerText = `${citas.length} cita(s)`;
-
-        if (citas.length === 0) {
-          tabla.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-slate-400 italic bg-white rounded">No se encontraron citas.</td></tr>`;
-          return;
+    function renderizarTabla(lotes) {
+        let tbody = document.getElementById('tabla-lotes');
+        if(lotes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No hay registros de subasta.</td></tr>`;
+            return;
         }
 
-        citas.forEach((data) => {
-          const tr = document.createElement('tr');
-          tr.className = "border-b hover:bg-slate-50 text-slate-700 bg-white sm:bg-transparent";
+        tbody.innerHTML = lotes.map(item => {
+            let institucionClase = item.institucion === 'FONAT' ? 'badge-fonat' : 'badge-isbm';
+            let instTexto = item.institucion || 'ISBM';
 
-          let estadoColor = "bg-amber-100 text-amber-800";
-          if (data.estado === "Atendido") estadoColor = "bg-emerald-100 text-emerald-800";
-          if (data.estado === "Agendado") estadoColor = "bg-blue-100 text-blue-800";
+            return `
+                <tr>
+                    <td><strong>${item.anio}</strong> - ${item.modelo}</td>
+                    <td>
+                        <a href="https://bid.cars/en/lot/1-${item.lote}/" target="_blank" class="btn btn-success btn-sm" style="font-weight: 700;">
+                            🌐 ${item.lote} ↗
+                        </a>
+                    </td>
+                    <td><span class="${institucionClase}">${instTexto}</span></td>
+                    <td><span class="badge-price">$${item.precio.toLocaleString()} USD</span></td>
+                    <td><span class="badge-limit">${item.tope ? '$' + item.tope.toLocaleString() + ' USD' : 'N/D'}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            <button class="btn btn-warning btn-sm" onclick="cargarEdicion('${item.id}')" type="button">✏️ Editar</button>
+                            <button class="btn btn-danger btn-sm" onclick="borrarLote('${item.id}')" type="button">🗑️ Borrar</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
 
-          const fechaFormateada = formatearFechaLatina(data.fecha);
-
-          tr.innerHTML = `
-            <td data-label="Fecha" class="p-2"><span class="font-medium">${fechaFormateada}</span></td>
-            <td data-label="Paciente" class="p-2 font-semibold uppercase text-slate-800">${data.paciente || ''}</td>
-            <td data-label="DUI / Tel" class="p-2 text-[11px] text-slate-500">${data.dui || '-'}<br class="hidden sm:inline">${data.telefono ? ' Tel: ' + data.telefono : ''}</td>
-            <td data-label="Registro" class="p-2 text-[11px] font-mono font-bold">${data.registro || '-'}</td>
-            <td data-label="Médico" class="p-2 font-normal text-slate-800">${data.doctor || ''}</td>
-            <td data-label="Estado" class="p-2"><span class="text-[10px] px-2 py-0.5 rounded-full font-medium ${estadoColor}">${data.estado || 'Agendado'}</span></td>
-            <td class="p-2 text-center space-x-1.5 td-acciones">
-              <button onclick="prepararEdicion('${data.id}')" class="text-[11px] bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded font-medium border border-amber-200/50">Editar</button>
-              <button onclick="eliminarCita('${data.id}')" class="text-[11px] bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1 rounded font-medium border border-red-200/50">Eliminar</button>
-            </td>
-          `;
-          tabla.appendChild(tr);
+    function filtrarLotes() {
+        let texto = document.getElementById('input-busqueda').value.toLowerCase();
+        let filtradas = listaLotes.filter(item => {
+            return (item.modelo && item.modelo.toLowerCase().includes(texto)) ||
+                   (item.lote && item.lote.toLowerCase().includes(texto)) ||
+                   (item.institucion && item.institucion.toLowerCase().includes(texto)) ||
+                   (item.anio && item.anio.toString().includes(texto));
         });
-      }
+        renderizarTabla(filtradas);
+    }
 
-      window.limpiarFiltros = () => {
-        document.getElementById('filtroDoctor').value = "";
-        document.getElementById('filtroFecha').value = "";
-        document.getElementById('filtroRegistro').value = "";
-        document.getElementById('filtroPaciente').value = "";
-        aplicarFiltros();
-      };
+    function cargarEdicion(id) {
+        let item = listaLotes.find(l => l.id === id);
+        if(!item) return;
 
-      window.prepararEdicion = (id) => {
-        const cita = citasCache[id];
-        if (!cita) return;
-        document.getElementById('editId').value = id;
-        document.getElementById('paciente').value = cita.paciente || '';
-        document.getElementById('dui').value = cita.dui || '';
-        document.getElementById('telefono').value = cita.telefono || '';
-        document.getElementById('registro').value = cita.registro || '';
-        selectDoctor.value = cita.doctor || '';
-        inputFecha.value = cita.fecha || '';
-        document.getElementById('anio').value = cita.anio || '2026';
-        document.getElementById('estado').value = cita.estado || 'Agendado';
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('veh-anio').value = item.anio;
+        document.getElementById('veh-lote').value = item.lote;
+        document.getElementById('veh-modelo').value = item.modelo;
+        document.getElementById('veh-institucion').value = item.institucion || 'ISBM';
+        document.getElementById('veh-precio').value = item.precio;
+        document.getElementById('veh-tope').value = item.tope || '';
 
-        document.getElementById('formTitulo').innerText = "Editar Cita Médica";
-        document.getElementById('btnGuardar').innerText = "Actualizar Cita";
-        document.getElementById('btnGuardar').className = "w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-3 rounded text-xs transition duration-200 active:scale-[0.99]";
-        document.getElementById('btnCancelarEdicion').classList.remove('hidden');
-        validarDisponibilidad();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
+        document.getElementById('form-title-label').innerText = 'EDITAR REFERENCIA DE SUBASTA';
+        document.getElementById('btn-guardar-actualizar').innerText = '💾 Actualizar Referencia';
+        document.getElementById('btn-cancelar-edicion').style.display = 'inline-flex';
 
-      window.cancelarEdicion = () => {
-        form.reset();
-        document.getElementById('editId').value = "";
-        document.getElementById('formTitulo').innerText = "Agendar Nueva Cita";
-        document.getElementById('btnGuardar').innerText = "Guardar Cita";
-        document.getElementById('btnGuardar').className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded text-xs transition duration-200 active:scale-[0.99]";
-        document.getElementById('btnCancelarEdicion').classList.add('hidden');
-        msgFecha.className = "hidden";
-        document.getElementById('anio').value = "2026";
-      };
+        switchTab('nuevo-lote', document.querySelectorAll('.nav-item')[0]);
+    }
 
-      window.eliminarCita = async (id) => {
-        if (confirm("¿Deseas eliminar este registro de cita?")) {
-          await deleteDoc(doc(db, "citas", id));
+    function limpiarFormulario() {
+        document.getElementById('edit-id').value = '';
+        document.getElementById('veh-anio').value = '';
+        document.getElementById('veh-lote').value = '';
+        document.getElementById('veh-modelo').value = '';
+        document.getElementById('veh-institucion').value = 'ISBM';
+        document.getElementById('veh-precio').value = '';
+        document.getElementById('veh-tope').value = '';
+
+        document.getElementById('form-title-label').innerText = 'DATOS DEL VEHÍCULO Y VALORES';
+        document.getElementById('btn-guardar-actualizar').innerText = '💾 Guardar Referencia';
+        document.getElementById('btn-cancelar-edicion').style.display = 'none';
+    }
+
+    function borrarLote(id) {
+        if(confirm('¿Deseas eliminar este registro de referencia?')) {
+            db.collection('historial_subastas').doc(id).delete();
         }
-      };
-    </script>
+    }
+</script>
 </body>
 </html>
