@@ -176,8 +176,8 @@
                     <input type="text" id="cita-paciente" placeholder="Ej. Juan Pérez">
                 </div>
                 <div class="form-group">
-                    <label>N° de DUI (Opcional)</label>
-                    <input type="text" id="cita-dui" placeholder="00000000-0">
+                    <label>N° de DUI</label>
+                    <input type="text" id="cita-dui" placeholder="00000000-0" maxlength="10">
                 </div>
                 <div class="form-group">
                     <label>Doctor Asignado</label>
@@ -262,7 +262,16 @@
 
     let listaCitas = [];
 
-    db.collection('agenda_medica').orderBy('fecha', 'asc').onSnapshot(snapshot => {
+    // Autoformato de DUI (00000000-0)
+    document.getElementById('cita-dui').addEventListener('input', function (e) {
+        let val = e.target.value.replace(/\D/g, '');
+        if (val.length > 8) {
+            val = val.slice(0, 8) + '-' + val.slice(8, 9);
+        }
+        e.target.value = val;
+    });
+
+    db.collection('agenda_medica').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
         listaCitas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderizarTabla(listaCitas);
     });
@@ -284,13 +293,13 @@
         let hora = document.getElementById('cita-hora').value;
 
         if(!paciente || !fechaInput || !hora) {
-            alert('Por favor complete los campos obligatorios (Paciente, Fecha y Hora).');
+            alert('Por favor complete los campos obligatorios: Paciente, Fecha y Hora.');
             return;
         }
 
-        // Validación de restricciones por doctor (Ej. Dr. Hurtarte solo Lunes y Miércoles)
+        // Validaciones de día y restricciones médicas
         let fechaObj = new Date(fechaInput + 'T00:00:00');
-        let diaSemana = fechaObj.getDay(); // 0: Dom, 1: Lun, 2: Mar, 3: Mié, etc.
+        let diaSemana = fechaObj.getDay(); // 0: Domingo, 6: Sábado
 
         if (diaSemana === 0 || diaSemana === 6) {
             alert('⚠️ No se pueden programar citas los fines de semana.');
@@ -302,7 +311,6 @@
             return;
         }
 
-        // Formatear fecha a DD/MM/YYYY
         let anio = fechaObj.getFullYear();
         let mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
         let dia = String(fechaObj.getDate()).padStart(2, '0');
@@ -324,13 +332,13 @@
                 alert('✅ Cita actualizada correctamente');
                 limpiarFormulario();
                 switchTab('historial-citas', document.querySelectorAll('.nav-item')[1]);
-            });
+            }).catch(err => alert('Error al actualizar: ' + err.message));
         } else {
             db.collection('agenda_medica').add(data).then(() => {
                 alert('✅ Cita agendada correctamente');
                 limpiarFormulario();
                 switchTab('historial-citas', document.querySelectorAll('.nav-item')[1]);
-            });
+            }).catch(err => alert('Error al guardar: ' + err.message));
         }
     }
 
