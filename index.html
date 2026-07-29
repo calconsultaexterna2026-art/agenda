@@ -13,6 +13,7 @@
         body {
             background-color: #f4f7f6;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.95rem;
         }
         .navbar-brand {
             font-weight: 700;
@@ -21,7 +22,7 @@
         .card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         }
         .card-header {
             background-color: #ffffff;
@@ -33,7 +34,7 @@
         .btn-primary {
             background-color: #0d6efd;
             border: none;
-            padding: 10px;
+            padding: 8px 12px;
             font-weight: 600;
             border-radius: 8px;
         }
@@ -42,8 +43,9 @@
         }
         .form-control, .form-select {
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 8px 12px;
             border: 1px solid #ced4da;
+            font-size: 0.95rem;
         }
         .form-control:focus, .form-select:focus {
             border-color: #0d6efd;
@@ -51,91 +53,126 @@
         }
         .table-responsive {
             border-radius: 8px;
-            overflow: hidden;
+            overflow-x: auto;
         }
         .table thead th {
             background-color: #f8f9fa;
             color: #495057;
             font-weight: 600;
             border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+        .table tbody td {
+            white-space: nowrap;
+            font-size: 0.87rem;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                font-size: 0.9rem;
+            }
+            .card-body {
+                padding: 1rem;
+            }
+            .table-responsive {
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
 <body>
 
     <!-- Barra Superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
-        <div class="container-fluid px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-3">
+        <div class="container-xl">
             <a class="navbar-brand" href="#">
                 <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas
             </a>
         </div>
     </nav>
 
-    <!-- Contenedor Principal -->
-    <div class="container-fluid px-4">
+    <!-- Contenedor Principal Limitado -->
+    <div class="container-xl mb-5">
         <div class="row g-4">
             
             <!-- Columna Izquierda: Formulario de Registro -->
-            <div class="col-lg-4">
+            <div class="col-12 col-lg-4">
                 <div class="card h-100">
-                    <div class="card-header py-3 text-primary">
-                        <i class="fa-solid fa-user-plus me-2"></i> Nueva Cita
+                    <div class="card-header py-3 text-primary d-flex justify-content-between align-items-center">
+                        <span id="tituloFormulario" style="font-size: 0.85rem;"><i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa Centro del Aparato Locomotor</span>
+                        <button type="button" id="btnCancelarEdicion" class="btn btn-sm btn-outline-secondary d-none">Cancelar</button>
                     </div>
                     <div class="card-body">
                         <form id="formCita">
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Nombre del Paciente</label>
-                                <div class="input-group">
+                            <input type="hidden" id="editIndex" value="-1">
+                            
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Nombre del Paciente</label>
+                                <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
-                                    <input type="text" class="form-control" id="txtNombre" placeholder="Ej. JUAN PÉREZ" style="text-transform: uppercase;" required>
+                                    <input type="text" class="form-control" id="txtNombre" style="text-transform: uppercase;" required>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">DUI</label>
-                                <div class="input-group">
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">DUI</label>
+                                <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-id-card text-muted"></i></span>
-                                    <input type="text" class="form-control" id="txtDui" placeholder="00000000-0" maxlength="10" required>
+                                    <input type="text" class="form-control" id="txtDui" maxlength="10" required>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Teléfono</label>
-                                <div class="input-group">
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Teléfono</label>
+                                <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-phone text-muted"></i></span>
-                                    <input type="tel" class="form-control" id="txtTelefono" placeholder="70000000" maxlength="8" required>
+                                    <input type="tel" class="form-control" id="txtTelefono" maxlength="8" required>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">N° de Registro</label>
-                                <div class="input-group">
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">N° de Registro</label>
+                                <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-file-medical text-muted"></i></span>
-                                    <input type="text" class="form-control" id="txtRegistro" placeholder="REG-2026" required>
+                                    <input type="text" class="form-control" id="txtRegistro" required>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Seleccionar Médico</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-doctor text-muted"></i></span>
-                                    <select class="form-select" id="cmbMedicos" required>
-                                        <option value="" selected disabled>Elija un especialista...</option>
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Institución / Procedencia (Opcional)</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-building-columns text-muted"></i></span>
+                                    <select class="form-select" id="cmbInstitucion">
+                                        <option value="" selected>Ninguna / Seleccionar...</option>
+                                        <option value="ISBM">ISBM</option>
+                                        <option value="FONAT">FONAT</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label text-muted small fw-bold">Fecha de la Cita (Calendario)</label>
-                                <div class="input-group">
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Seleccionar Médico</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-doctor text-muted"></i></span>
+                                    <select class="form-select" id="cmbMedicos" required>
+                                        <option value="" selected disabled>Elija especialista...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold mb-1">Fecha de la Cita</label>
+                                <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-calendar-days text-muted"></i></span>
                                     <input type="date" class="form-control" id="dateCita" required>
                                 </div>
-                                <div class="form-text text-muted small">No disponible fines de semana ni días asuetos.</div>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">No disponible fines de semana/asuetos.</div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                            <button type="submit" id="btnSubmit" class="btn btn-primary btn-sm w-100 shadow-sm mt-2">
                                 <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita
                             </button>
                         </form>
@@ -143,51 +180,73 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Filtros y Tabla de Pacientes Agendados -->
-            <div class="col-lg-8">
+            <!-- Columna Derecha: Filtros y Tabla -->
+            <div class="col-12 col-lg-8">
                 <div class="card h-100">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center text-primary">
                         <span><i class="fa-solid fa-clipboard-list me-2"></i> Agenda de Pacientes</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body d-flex flex-column justify-content-between">
                         
-                        <!-- Panel de Filtros de Búsqueda -->
-                        <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted">Buscar Paciente / DUI</label>
-                                <input type="text" class="form-control" id="txtBuscar" placeholder="Escribe para buscar...">
+                        <div>
+                            <!-- Panel de Filtros Compacto -->
+                            <div class="row g-2 mb-3 p-2 bg-light rounded-3 border align-items-end">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Buscar / DUI</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtBuscar">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Institución</label>
+                                    <select class="form-select form-select-sm" id="cmbFiltroInstitucion">
+                                        <option value="">Todas</option>
+                                        <option value="ISBM">ISBM</option>
+                                        <option value="FONAT">FONAT</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Médico</label>
+                                    <select class="form-select form-select-sm" id="cmbFiltroMedico">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Fecha</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateFiltro">
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted">Filtrar por Médico</label>
-                                <select class="form-select" id="cmbFiltroMedico">
-                                    <option value="">Todos los médicos</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted">Filtrar por Fecha</label>
-                                <input type="date" class="form-control" id="dateFiltro">
+
+                            <!-- Tabla de Datos Optimizada -->
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>DUI</th>
+                                            <th>Institución</th>
+                                            <th>Teléfono</th>
+                                            <th>Registro</th>
+                                            <th>Médico</th>
+                                            <th>Fecha</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaCitasBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">No hay citas registradas aún.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
-                        <!-- Tabla de Datos -->
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Paciente</th>
-                                        <th>DUI</th>
-                                        <th>Teléfono</th>
-                                        <th>Registro</th>
-                                        <th>Médico</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaCitasBody">
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">No hay citas registradas aún.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Paginación de Registros -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" id="paginacionContainer">
+                            <span class="text-muted small" id="infoPaginacion">Mostrando 0 de 0 citas</span>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0" id="ulPaginacion">
+                                    <!-- Botones generados dinámicamente -->
+                                </ul>
+                            </nav>
                         </div>
 
                     </div>
@@ -214,10 +273,14 @@
             ];
 
             let citas = [];
+            let paginaActual = 1;
+            const registrosPorPagina = 10;
 
             const formCita = document.getElementById('formCita');
             const cmbMedicos = document.getElementById('cmbMedicos');
+            const cmbInstitucion = document.getElementById('cmbInstitucion');
             const cmbFiltroMedico = document.getElementById('cmbFiltroMedico');
+            const cmbFiltroInstitucion = document.getElementById('cmbFiltroInstitucion');
             const tablaCitasBody = document.getElementById('tablaCitasBody');
             
             const txtNombre = document.getElementById('txtNombre');
@@ -228,13 +291,18 @@
             
             const txtBuscar = document.getElementById('txtBuscar');
             const dateFiltro = document.getElementById('dateFiltro');
+            const editIndex = document.getElementById('editIndex');
+            const tituloFormulario = document.getElementById('tituloFormulario');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnCancelarEdicion = document.getElementById('btnCancelarEdicion');
+            
+            const infoPaginacion = document.getElementById('infoPaginacion');
+            const ulPaginacion = document.getElementById('ulPaginacion');
 
-            // Forzar mayúsculas en tiempo real al escribir el nombre
             txtNombre.addEventListener('input', (e) => {
                 e.target.value = e.target.value.toUpperCase();
             });
 
-            // Autoformato del DUI: coloca el guion automáticamente antes del último dígito
             txtDui.addEventListener('input', (e) => {
                 let val = e.target.value.replace(/[^0-9]/g, '');
                 if (val.length > 8) {
@@ -243,22 +311,12 @@
                 e.target.value = val;
             });
 
-            // Teléfono solo números (máximo 8 dígitos)
             txtTelefono.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
             });
 
-            // Asuetos fijos nacionales en El Salvador (Mes-Día)
             const asuetosFijos = [
-                "01-01", // Año Nuevo
-                "05-01", // Día del Trabajo
-                "05-10", // Día de la Madre
-                "06-17", // Día del Padre
-                "08-05", // Fiestas Agostinas
-                "08-06", // Fiestas Agostinas
-                "09-15", // Día de la Independencia
-                "11-02", // Día de los Difuntos
-                "12-25"  // Navidad
+                "01-01", "05-01", "05-10", "06-17", "08-05", "08-06", "09-15", "11-02", "12-25"
             ];
 
             function esDiaInhabil(fechaStr) {
@@ -267,7 +325,7 @@
                 const mesDia = `${partes[1]}-${partes[2]}`;
                 
                 const fecha = new Date(fechaStr + 'T00:00:00');
-                const diaSemana = fecha.getDay(); // 0 = Domingo, 6 = Sábado
+                const diaSemana = fecha.getDay();
 
                 if (diaSemana === 0 || diaSemana === 6) return true;
                 if (asuetosFijos.includes(mesDia)) return true;
@@ -287,7 +345,11 @@
                 medicosLista.forEach(medico => {
                     const opt1 = document.createElement('option');
                     opt1.value = medico;
-                    opt1.textContent = medico;
+                    if (medico === "Dr. Hurtarte") {
+                        opt1.textContent = `${medico}  🔴 (Lunes/Miércoles)`;
+                    } else {
+                        opt1.textContent = medico;
+                    }
                     cmbMedicos.appendChild(opt1);
 
                     const opt2 = document.createElement('option');
@@ -297,30 +359,188 @@
                 });
             }
 
-            function renderizarTabla(datosAMostrar = citas) {
+            function formatearFechaDDMMYYYY(fechaStr) {
+                if (!fechaStr) return '';
+                const partes = fechaStr.split('-');
+                if (partes.length === 3) {
+                    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+                return fechaStr;
+            }
+
+            function obtenerDatosFiltrados() {
+                const textoBusqueda = txtBuscar.value.toLowerCase();
+                const instFiltro = cmbFiltroInstitucion.value;
+                const medicoFiltro = cmbFiltroMedico.value;
+                const fechaFiltro = dateFiltro.value;
+
+                return citas.filter(cita => {
+                    const coincideTexto = cita.nombre.toLowerCase().includes(textoBusqueda) || 
+                                         cita.dui.toLowerCase().includes(textoBusqueda);
+                    
+                    const coincideInst = instFiltro === "" || cita.institucion === instFiltro;
+                    const coincideMedico = medicoFiltro === "" || cita.medico === medicoFiltro;
+                    const coincideFecha = fechaFiltro === "" || cita.fecha === fechaFiltro;
+
+                    return coincideTexto && coincideInst && coincideMedico && coincideFecha;
+                });
+            }
+
+            function renderizarTabla() {
+                const datosFiltrados = obtenerDatosFiltrados();
                 tablaCitasBody.innerHTML = '';
 
-                if (datosAMostrar.length === 0) {
+                const totalRegistros = datosFiltrados.length;
+                const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
+
+                if (paginaActual > totalPaginas) {
+                    paginaActual = totalPaginas;
+                }
+                if (paginaActual < 1) {
+                    paginaActual = 1;
+                }
+
+                const inicio = (paginaActual - 1) * registrosPorPagina;
+                const fin = inicio + registrosPorPagina;
+                const datosPaginados = datosFiltrados.slice(inicio, fin);
+
+                if (datosPaginados.length === 0) {
                     tablaCitasBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No se encontraron registros de citas.</td>
+                            <td colspan="8" class="text-center text-muted py-4">No se encontraron registros de citas.</td>
                         </tr>`;
+                    infoPaginacion.textContent = `Mostrando 0 de 0 citas`;
+                    ulPaginacion.innerHTML = '';
                     return;
                 }
 
-                datosAMostrar.forEach(cita => {
+                datosPaginados.forEach((cita) => {
+                    const indexReal = citas.indexOf(cita);
+                    let badgeHtml = '<span class="text-muted">-</span>';
+                    if (cita.institucion === "ISBM") {
+                        badgeHtml = '<span class="badge bg-info text-dark px-2 py-1">ISBM</span>';
+                    } else if (cita.institucion === "FONAT") {
+                        badgeHtml = '<span class="badge bg-warning text-dark px-2 py-1">FONAT</span>';
+                    }
+
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
                         <td class="fw-semibold text-dark">${cita.nombre}</td>
                         <td>${cita.dui}</td>
+                        <td>${badgeHtml}</td>
                         <td>${cita.telefono}</td>
                         <td><span class="badge bg-light text-dark border">${cita.registro}</span></td>
                         <td><span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1">${cita.medico}</span></td>
-                        <td>${cita.fecha}</td>
+                        <td>${formatearFechaDDMMYYYY(cita.fecha)}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary px-2 py-1 me-1 btn-editar" data-index="${indexReal}" title="Editar Cita">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger px-2 py-1 btn-borrar" data-index="${indexReal}" title="Borrar Cita">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
                     `;
                     tablaCitasBody.appendChild(fila);
                 });
+
+                infoPaginacion.textContent = `Mostrando ${inicio + 1} a ${Math.min(fin, totalRegistros)} de ${totalRegistros} citas`;
+                renderizarControlesPaginacion(totalPaginas);
+
+                document.querySelectorAll('.btn-editar').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = e.currentTarget.getAttribute('data-index');
+                        cargarDatosParaEditar(idx);
+                    });
+                });
+
+                document.querySelectorAll('.btn-borrar').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = e.currentTarget.getAttribute('data-index');
+                        eliminarCita(idx);
+                    });
+                });
             }
+
+            function renderizarControlesPaginacion(totalPaginas) {
+                ulPaginacion.innerHTML = '';
+
+                if (totalPaginas <= 1) return;
+
+                // Botón Anterior
+                const liAnterior = document.createElement('li');
+                liAnterior.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+                liAnterior.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual - 1}">Ant</a>`;
+                ulPaginacion.appendChild(liAnterior);
+
+                // Números de página
+                for (let i = 1; i <= totalPaginas; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${paginaActual === i ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                    ulPaginacion.appendChild(li);
+                }
+
+                // Botón Siguiente
+                const liSiguiente = document.createElement('li');
+                liSiguiente.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+                liSiguiente.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual + 1}">Sig</a>`;
+                ulPaginacion.appendChild(liSiguiente);
+
+                ulPaginacion.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const nuevaPagina = parseInt(e.currentTarget.getAttribute('data-page'));
+                        if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+                            paginaActual = nuevaPagina;
+                            renderizarTabla();
+                        }
+                    });
+                });
+            }
+
+            function cargarDatosParaEditar(index) {
+                const cita = citas[index];
+                txtNombre.value = cita.nombre;
+                txtDui.value = cita.dui;
+                txtTelefono.value = cita.telefono;
+                txtRegistro.value = cita.registro;
+                cmbInstitucion.value = cita.institucion || "";
+                cmbMedicos.value = cita.medico;
+                dateCita.value = cita.fecha;
+                editIndex.value = index;
+
+                tituloFormulario.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Editando Cita`;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-rotate me-2"></i> Actualizar`;
+                btnCancelarEdicion.classList.remove('d-none');
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function eliminarCita(index) {
+                if (confirm('¿Estás seguro de que deseas eliminar esta cita de la agenda?')) {
+                    citas.splice(index, 1);
+                    renderizarTabla();
+                    if (parseInt(editIndex.value) === parseInt(index)) {
+                        limpiarFormulario();
+                    } else if (parseInt(editIndex.value) > parseInt(index)) {
+                        editIndex.value = parseInt(editIndex.value) - 1;
+                    }
+                    alert('¡Cita eliminada correctamente!');
+                }
+            }
+
+            function limpiarFormulario() {
+                formCita.reset();
+                editIndex.value = '-1';
+                tituloFormulario.innerHTML = `<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa Centro del Aparato Locomotor`;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita`;
+                btnCancelarEdicion.classList.add('d-none');
+            }
+
+            btnCancelarEdicion.addEventListener('click', () => {
+                limpiarFormulario();
+            });
 
             formCita.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -329,7 +549,9 @@
                 const duiVal = txtDui.value.trim();
                 const telVal = txtTelefono.value.trim();
                 const regVal = txtRegistro.value.trim();
+                const instVal = cmbInstitucion.value;
                 const fechaVal = dateCita.value;
+                const idx = parseInt(editIndex.value);
 
                 const regexDui = /^\d{8}-\d{1}$/;
                 if (!regexDui.test(duiVal)) {
@@ -349,49 +571,40 @@
                     return;
                 }
 
-                const nuevaCita = {
-                    nombre: nombreVal,
-                    dui: duiVal,
-                    telefono: telVal,
-                    registro: regVal,
-                    medico: cmbMedicos.value,
-                    fecha: fechaVal
-                };
+                if (idx === -1) {
+                    const nuevaCita = {
+                        nombre: nombreVal,
+                        dui: duiVal,
+                        institucion: instVal,
+                        telefono: telVal,
+                        registro: regVal,
+                        medico: cmbMedicos.value,
+                        fecha: fechaVal
+                    };
+                    citas.push(nuevaCita);
+                    paginaActual = 1; // Ir a la primera página para ver el nuevo registro
+                    alert('¡Cita guardada y agendada exitosamente!');
+                } else {
+                    citas[idx] = {
+                        nombre: nombreVal,
+                        dui: duiVal,
+                        institucion: instVal,
+                        telefono: telVal,
+                        registro: regVal,
+                        medico: cmbMedicos.value,
+                        fecha: fechaVal
+                    };
+                    alert('¡Cita actualizada exitosamente!');
+                }
 
-                citas.push(nuevaCita);
                 renderizarTabla();
-                
-                txtNombre.value = '';
-                txtDui.value = '';
-                txtTelefono.value = '';
-                txtRegistro.value = '';
-                cmbMedicos.value = '';
-                dateCita.value = '';
-
-                alert('¡Cita guardada y agendada exitosamente!');
+                limpiarFormulario();
             });
 
-            function aplicarFiltros() {
-                const textoBusqueda = txtBuscar.value.toLowerCase();
-                const medicoFiltro = cmbFiltroMedico.value;
-                const fechaFiltro = dateFiltro.value;
-
-                const citasFiltradas = citas.filter(cita => {
-                    const coincideTexto = cita.nombre.toLowerCase().includes(textoBusqueda) || 
-                                         cita.dui.toLowerCase().includes(textoBusqueda);
-                    
-                    const coincideMedico = medicoFiltro === "" || cita.medico === medicoFiltro;
-                    const coincideFecha = fechaFiltro === "" || cita.fecha === fechaFiltro;
-
-                    return coincideTexto && coincideMedico && coincideFecha;
-                });
-
-                renderizarTabla(citasFiltradas);
-            }
-
-            txtBuscar.addEventListener('input', aplicarFiltros);
-            cmbFiltroMedico.addEventListener('change', aplicarFiltros);
-            dateFiltro.addEventListener('change', aplicarFiltros);
+            txtBuscar.addEventListener('input', () => { paginaActual = 1; renderizarTabla(); });
+            cmbFiltroInstitucion.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+            cmbFiltroMedico.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+            dateFiltro.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
 
             inicializarSelectsMedicos();
             renderizarTabla();
