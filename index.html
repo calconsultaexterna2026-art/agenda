@@ -272,7 +272,8 @@
                 "Dra. Flores"
             ];
 
-            let citas = [];
+            // Cargar datos guardados previamente en el navegador (si existen)
+            let citas = JSON.parse(localStorage.getItem('citas_medicas')) || [];
             let paginaActual = 1;
             const registrosPorPagina = 10;
 
@@ -313,6 +314,13 @@
 
             txtTelefono.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+            });
+
+            // Lógica para detectar el año y ponerle un guion automáticamente antes (Ej: 2026 -> -2026)
+            txtRegistro.addEventListener('input', (e) => {
+                let val = e.target.value;
+                val = val.replace(/(^|[^\-])(20\d{2})/g, '$1-$2');
+                e.target.value = val;
             });
 
             const asuetosFijos = [
@@ -357,6 +365,10 @@
                     opt2.textContent = medico;
                     cmbFiltroMedico.appendChild(opt2);
                 });
+            }
+
+            function guardarEnLocalStorage() {
+                localStorage.setItem('citas_medicas', JSON.stringify(citas));
             }
 
             function formatearFechaDDMMYYYY(fechaStr) {
@@ -467,13 +479,11 @@
 
                 if (totalPaginas <= 1) return;
 
-                // Botón Anterior
                 const liAnterior = document.createElement('li');
                 liAnterior.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
                 liAnterior.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual - 1}">Ant</a>`;
                 ulPaginacion.appendChild(liAnterior);
 
-                // Números de página
                 for (let i = 1; i <= totalPaginas; i++) {
                     const li = document.createElement('li');
                     li.className = `page-item ${paginaActual === i ? 'active' : ''}`;
@@ -481,7 +491,6 @@
                     ulPaginacion.appendChild(li);
                 }
 
-                // Botón Siguiente
                 const liSiguiente = document.createElement('li');
                 liSiguiente.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
                 liSiguiente.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual + 1}">Sig</a>`;
@@ -520,6 +529,7 @@
             function eliminarCita(index) {
                 if (confirm('¿Estás seguro de que deseas eliminar esta cita de la agenda?')) {
                     citas.splice(index, 1);
+                    guardarEnLocalStorage();
                     renderizarTabla();
                     if (parseInt(editIndex.value) === parseInt(index)) {
                         limpiarFormulario();
@@ -582,7 +592,7 @@
                         fecha: fechaVal
                     };
                     citas.push(nuevaCita);
-                    paginaActual = 1; // Ir a la primera página para ver el nuevo registro
+                    paginaActual = 1;
                     alert('¡Cita guardada y agendada exitosamente!');
                 } else {
                     citas[idx] = {
@@ -597,6 +607,7 @@
                     alert('¡Cita actualizada exitosamente!');
                 }
 
+                guardarEnLocalStorage();
                 renderizarTabla();
                 limpiarFormulario();
             });
