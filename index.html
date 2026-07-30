@@ -82,7 +82,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-3">
         <div class="container-xl">
             <a class="navbar-brand" href="#">
-                <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas (Sincronizado)
+                <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas
             </a>
         </div>
     </nav>
@@ -95,7 +95,7 @@
             <div class="col-12 col-lg-4">
                 <div class="card h-100">
                     <div class="card-header py-3 text-primary d-flex justify-content-between align-items-center">
-                        <span id="tituloFormulario" style="font-size: 0.85rem;"><i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa Centro del Aparato Locomotor</span>
+                        <span id="tituloFormulario" style="font-size: 0.85rem;"><i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL</span>
                         <button type="button" id="btnCancelarEdicion" class="btn btn-sm btn-outline-secondary d-none">Cancelar</button>
                     </div>
                     <div class="card-body">
@@ -254,7 +254,7 @@
 
     <!-- Script Principal de Lógica y Firebase -->
     <script>
-        // Tus credenciales exactas
+        // Tus credenciales exactas de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDuixL3_4MSVbVLorKtepRq2kCb1AUfeUM",
             authDomain: "agendamedica-865ad.firebaseapp.com",
@@ -488,17 +488,15 @@
             }
 
             function eliminarCita(id) {
-                if (confirm('¿Estás seguro de que deseas eliminar esta cita de la agenda?')) {
-                    firebase.database().ref('citas_medicas/' + id).remove()
-                        .then(() => { alert('¡Cita eliminada correctamente!'); limpiarFormulario(); })
-                        .catch(err => alert('Error al eliminar: ' + err.message));
-                }
+                firebase.database().ref('citas_medicas/' + id).remove()
+                    .then(() => { limpiarFormulario(); })
+                    .catch(err => console.error(err));
             }
 
             function limpiarFormulario() {
                 formCita.reset();
                 editKey.value = '';
-                tituloFormulario.innerHTML = `<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa Centro del Aparato Locomotor`;
+                tituloFormulario.innerHTML = `<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL`;
                 btnSubmit.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita`;
                 btnCancelarEdicion.classList.add('d-none');
             }
@@ -537,9 +535,9 @@
 
                 const dbRuta = firebase.database().ref('citas_medicas');
                 if (key === "") {
-                    dbRuta.push(datosCita).then(() => { alert('¡Cita guardada en la nube!'); limpiarFormulario(); }).catch(err => alert(err.message));
+                    dbRuta.push(datosCita).then(() => { limpiarFormulario(); }).catch(err => alert(err.message));
                 } else {
-                    firebase.database().ref('citas_medicas/' + key).set(datosCita).then(() => { alert('¡Cita actualizada!'); limpiarFormulario(); }).catch(err => alert(err.message));
+                    firebase.database().ref('citas_medicas/' + key).set(datosCita).then(() => { limpiarFormulario(); }).catch(err => alert(err.message));
                 }
             });
 
