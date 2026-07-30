@@ -51,11 +51,9 @@
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
         }
-        .table-responsive {
-            border-radius: 8px;
-            overflow-x: hidden; /* Evita scroll horizontal innecesario */
-        }
-        .table thead th {
+
+        /* Estilos de Tabla Tradicional para Escritorio */
+        .table-desktop thead th {
             background-color: #f8f9fa;
             color: #495057;
             font-weight: 600;
@@ -63,19 +61,40 @@
             font-size: 0.8rem;
             padding: 8px 6px;
         }
-        .table tbody td {
+        .table-desktop tbody td {
             font-size: 0.82rem;
-            padding-top: 6px;
-            padding-bottom: 6px;
-            padding-left: 6px;
-            padding-right: 6px;
+            padding: 6px;
             vertical-align: middle;
-            white-space: normal; /* Permite ajustar el contenido al ancho */
             word-break: break-word;
         }
-        @media (max-width: 768px) {
-            body { font-size: 0.9rem; }
-            .card-body { padding: 1rem; }
+
+        /* Vista de Tarjetas para Móviles */
+        .cita-card-mobile {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .cita-card-mobile .row-dato {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        .cita-card-mobile .label-dato {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        @media (max-width: 991.98px) {
+            .ocultar-en-movil { display: none !important; }
+            .mostrar-en-movil { display: block !important; }
+        }
+        @media (min-width: 992px) {
+            .ocultar-en-movil { display: block !important; }
+            .mostrar-en-movil { display: none !important; }
         }
     </style>
 </head>
@@ -176,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Tabla, Filtros y Exportación -->
+            <!-- Columna Derecha: Filtros, Tabla y Vista Móvil -->
             <div class="col-12 col-lg-8">
                 <div class="card h-100">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center text-primary">
@@ -215,9 +234,9 @@
                                 </div>
                             </div>
 
-                            <!-- Tabla Ajustada al Ancho -->
-                            <div class="table-responsive">
-                                <table class="table table-hover table-sm align-middle mb-0 w-100">
+                            <!-- Vista de Tabla Tradicional (Sólo PC / Pantallas grandes) -->
+                            <div class="table-responsive ocultar-en-movil">
+                                <table class="table table-hover table-sm align-middle mb-0 w-100 table-desktop">
                                     <thead>
                                         <tr>
                                             <th style="width: 22%;">Paciente</th>
@@ -230,12 +249,15 @@
                                             <th style="width: 9%;" class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tablaCitasBody">
-                                        <tr>
-                                            <td colspan="8" class="text-center text-muted py-4">Cargando registros desde la nube...</td>
-                                        </tr>
+                                    <tbody id="tablaCitasBodyDesktop">
+                                        <tr><td colspan="8" class="text-center text-muted py-4">Cargando registros...</td></tr>
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Vista de Tarjetas (Sólo Celulares / Pantallas pequeñas) -->
+                            <div class="mostrar-en-movil" id="contenedorCitasMobile">
+                                <div class="text-center text-muted py-4">Cargando registros...</div>
                             </div>
                         </div>
 
@@ -326,7 +348,9 @@
             const cmbInstitucion = document.getElementById('cmbInstitucion');
             const cmbFiltroMedico = document.getElementById('cmbFiltroMedico');
             const cmbFiltroInstitucion = document.getElementById('cmbFiltroInstitucion');
-            const tablaCitasBody = document.getElementById('tablaCitasBody');
+            
+            const tablaCitasBodyDesktop = document.getElementById('tablaCitasBodyDesktop');
+            const contenedorCitasMobile = document.getElementById('contenedorCitasMobile');
             
             const txtNombre = document.getElementById('txtNombre');
             const txtDui = document.getElementById('txtDui');
@@ -380,7 +404,6 @@
                 if (!fechaStr) return false;
                 const d = new Date(fechaStr + 'T00:00:00');
                 const diaSemana = d.getDay();
-
                 if (diaSemana === 0 || diaSemana === 6) return true;
 
                 const anio = d.getFullYear();
@@ -472,7 +495,6 @@
 
             function exportarTablaAExcel() {
                 const datosAExportar = obtenerDatosFiltrados();
-
                 if (datosAExportar.length === 0) {
                     alert("No hay registros en la tabla para exportar con los filtros actuales.");
                     return;
@@ -509,7 +531,8 @@
 
             function renderizarTabla() {
                 const datosFiltrados = obtenerDatosFiltrados();
-                tablaCitasBody.innerHTML = '';
+                tablaCitasBodyDesktop.innerHTML = '';
+                contenedorCitasMobile.innerHTML = '';
 
                 const totalRegistros = datosFiltrados.length;
                 const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
@@ -522,7 +545,8 @@
                 const datosPaginados = datosFiltrados.slice(inicio, fin);
 
                 if (datosPaginados.length === 0) {
-                    tablaCitasBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron registros de citas.</td></tr>`;
+                    tablaCitasBodyDesktop.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron registros de citas.</td></tr>`;
+                    contenedorCitasMobile.innerHTML = `<div class="text-center text-muted py-4">No se encontraron registros de citas.</div>`;
                     infoPaginacion.textContent = `Mostrando 0 de 0 citas`;
                     ulPaginacion.innerHTML = '';
                     return;
@@ -533,6 +557,7 @@
                     if (cita.institucion === "ISBM") badgeHtml = '<span class="badge bg-info text-dark px-1 py-1" style="font-size: 0.75rem;">ISBM</span>';
                     else if (cita.institucion === "FONAT") badgeHtml = '<span class="badge bg-warning text-dark px-1 py-1" style="font-size: 0.75rem;">FONAT</span>';
 
+                    // 1. Render para Escritorio (Tabla tradicional)
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
                         <td class="fw-semibold text-dark">${cita.nombre}</td>
@@ -547,12 +572,33 @@
                             <button class="btn btn-sm btn-outline-danger p-1 btn-borrar" data-id="${cita.id}" title="Borrar"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     `;
-                    tablaCitasBody.appendChild(fila);
+                    tablaCitasBodyDesktop.appendChild(fila);
+
+                    // 2. Render para Móvil (Tarjetas verticales adaptadas)
+                    const cardMobile = document.createElement('div');
+                    cardMobile.className = 'cita-card-mobile';
+                    cardMobile.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="fw-bold text-primary" style="font-size: 0.9rem;">${cita.nombre}</span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1 btn-editar" data-id="${cita.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-borrar" data-id="${cita.id}"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        <div class="row-dato"><span class="label-dato">DUI:</span> <span>${cita.dui}</span></div>
+                        <div class="row-dato"><span class="label-dato">Institución:</span> <span>${badgeHtml}</span></div>
+                        <div class="row-dato"><span class="label-dato">Teléfono:</span> <span>${cita.telefono}</span></div>
+                        <div class="row-dato"><span class="label-dato">Registro:</span> <span>${cita.registro}</span></div>
+                        <div class="row-dato"><span class="label-dato">Médico:</span> <span>${cita.medico}</span></div>
+                        <div class="row-dato"><span class="label-dato">Fecha:</span> <span class="fw-semibold text-dark">${formatearFechaDDMMYYYY(cita.fecha)}</span></div>
+                    `;
+                    contenedorCitasMobile.appendChild(cardMobile);
                 });
 
                 infoPaginacion.textContent = `Mostrando ${inicio + 1} a ${Math.min(fin, totalRegistros)} de ${totalRegistros} citas`;
                 renderizarControlesPaginacion(totalPaginas);
 
+                // Asignar eventos a los botones de editar y borrar (tanto en tabla como en tarjetas móviles)
                 document.querySelectorAll('.btn-editar').forEach(btn => {
                     btn.addEventListener('click', (e) => cargarDatosParaEditar(e.currentTarget.getAttribute('data-id')));
                 });
