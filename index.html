@@ -1,209 +1,207 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Citas - Consulta Externa</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Citas - Consulta Externa</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-light">
 
-    <!-- Barra Superior con el botón integrado a la izquierda -->
-    <nav class="navbar navbar-dark bg-primary px-3 d-flex justify-content-between align-items-center mb-4 shadow-sm">
-        <div class="d-flex align-items-center gap-3">
-            <span class="navbar-brand mb-0 h1">Sistema de Citas</span>
-            <button onclick="exportarExcel()" class="btn btn-light btn-sm text-primary fw-bold py-1 px-2" style="font-size: 0.8rem;">
-                <i class="fas fa-file-excel me-1"></i> Descargar Excel
-            </button>
-        </div>
-    </nav>
+    <!-- Barra Superior con el botón pequeño integrado a la derecha -->
+    <nav class="navbar navbar-dark bg-primary px-3 d-flex justify-content-between align-items-center mb-4 shadow-sm">
+        <span class="navbar-brand mb-0 h1">Sistema de Citas</span>
+        <button onclick="exportarExcel()" class="btn btn-light btn-sm text-primary fw-bold py-1 px-2" style="font-size: 0.8rem;">
+            <i class="fas fa-file-excel me-1"></i> Descargar Excel
+        </button>
+    </nav>
 
-    <div class="container-fluid px-3">
-        <div class="row">
-            
-            <!-- Columna Izquierda: Formulario (Mantiene estructura original intacta) -->
-            <div class="col-xl-4 col-lg-5 mb-4">
-                <div class="card shadow-sm border-0 p-3">
-                    <h5 class="text-primary mb-3">Consulta Externa CAL</h5>
-                    <form id="formCita">
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Nombre del Paciente</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="nombrePaciente" required oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">DUI</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                <input type="text" class="form-control" id="duiPaciente" placeholder="00000000-0">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Teléfono</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                <input type="text" class="form-control" id="telefonoPaciente" placeholder="70000000" maxlength="8">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">N° de Registro</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-file-medical"></i></span>
-                                <input type="text" class="form-control" id="registroPaciente">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Institución / Procedencia (Opcional)</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-hospital"></i></span>
-                                <select class="form-select" id="institucionPaciente">
-                                    <option value="">Ninguna / Seleccionar...</option>
-                                    <option value="ISBM">ISBM</option>
-                                    <option value="FONAT">FONAT</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Seleccionar Médico</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-md"></i></span>
-                                <select class="form-select" id="medicoPaciente">
-                                    <option value="">Elija especialista...</option>
-                                    <option value="Dr. Ávalos">Dr. Ávalos</option>
-                                    <option value="Dr. Mendoza">Dr. Mendoza</option>
-                                    <option value="Dra. Molina">Dra. Molina</option>
-                                    <option value="Dr. Reyes">Dr. Reyes</option>
-                                    <option value="Dr. González">Dr. González</option>
-                                    <option value="Dra. Flores">Dra. Flores</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Fecha de la Cita</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" class="form-control" id="fechaCita">
-                            </div>
-                            <div class="form-text text-muted small">No disponible fines de semana/asuetos.</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm py-2">
-                            <i class="fas fa-save me-1"></i> Guardar Cita
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <div class="container-fluid px-3">
+        <div class="row">
+            
+            <!-- Columna Izquierda: Formulario (Mantiene estructura original intacta) -->
+            <div class="col-xl-4 col-lg-5 mb-4">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="text-primary mb-3">Consulta Externa CAL</h5>
+                    <form id="formCita">
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">Nombre del Paciente</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="nombrePaciente" required oninput="this.value = this.value.toUpperCase()">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">DUI</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input type="text" class="form-control" id="duiPaciente" placeholder="00000000-0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">Teléfono</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="text" class="form-control" id="telefonoPaciente" placeholder="70000000" maxlength="8">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">N° de Registro</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-file-medical"></i></span>
+                                <input type="text" class="form-control" id="registroPaciente">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">Institución / Procedencia (Opcional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-hospital"></i></span>
+                                <select class="form-select" id="institucionPaciente">
+                                    <option value="">Ninguna / Seleccionar...</option>
+                                    <option value="ISBM">ISBM</option>
+                                    <option value="FONAT">FONAT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">Seleccionar Médico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-md"></i></span>
+                                <select class="form-select" id="medicoPaciente">
+                                    <option value="">Elija especialista...</option>
+                                    <option value="Dr. Ávalos">Dr. Ávalos</option>
+                                    <option value="Dr. Mendoza">Dr. Mendoza</option>
+                                    <option value="Dra. Molina">Dra. Molina</option>
+                                    <option value="Dr. Reyes">Dr. Reyes</option>
+                                    <option value="Dr. González">Dr. González</option>
+                                    <option value="Dra. Flores">Dra. Flores</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-monospace small">Fecha de la Cita</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="date" class="form-control" id="fechaCita">
+                            </div>
+                            <div class="form-text text-muted small">No disponible fines de semana/asuetos.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 shadow-sm py-2">
+                            <i class="fas fa-save me-1"></i> Guardar Cita
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-            <!-- Columna Derecha: Tabla de Pacientes Agendados -->
-            <div class="col-xl-8 col-lg-7">
-                <div class="card shadow-sm border-0 p-3">
-                    <h5 class="text-secondary mb-3">Agenda de Pacientes</h5>
+            <!-- Columna Derecha: Tabla de Pacientes Agendados -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="text-secondary mb-3">Agenda de Pacientes</h5>
 
-                    <!-- Filtros de Búsqueda -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar / DUI">
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select form-select-sm">
-                                <option>Todas</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select form-select-sm">
-                                <option>Todos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" class="form-control form-control-sm">
-                        </div>
-                    </div>
+                    <!-- Filtros de Búsqueda -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar / DUI">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm">
+                                <option>Todas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm">
+                                <option>Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" class="form-control form-control-sm">
+                        </div>
+                    </div>
 
-                    <!-- Tabla Principal -->
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="tablaAgenda">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Paciente</th>
-                                    <th>DUI</th>
-                                    <th>Institución</th>
-                                    <th>Teléfono</th>
-                                    <th>Registro</th>
-                                    <th>Médico</th>
-                                    <th>Fecha</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>CARLOS ALFREDO GONZALES</strong></td>
-                                    <td>02043239-6</td>
-                                    <td>-</td>
-                                    <td>75841238</td>
-                                    <td>72728828-2026</td>
-                                    <td>Dr. Ávalos</td>
-                                    <td>31/07/2026</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>CARLOS ANTONIO AGUILAR</strong></td>
-                                    <td>02043985-5</td>
-                                    <td><span class="badge bg-info text-dark">ISBM</span></td>
-                                    <td>70014360</td>
-                                    <td>88484848-2026</td>
-                                    <td>Dr. Mendoza</td>
-                                    <td>31/07/2026</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>JUAN PEREZ</strong></td>
-                                    <td>02043231-6</td>
-                                    <td><span class="badge bg-warning text-dark">FONAT</span></td>
-                                    <td>76421385</td>
-                                    <td>7283828-2026</td>
-                                    <td>Dra. Molina</td>
-                                    <td>31/07/2026</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <!-- Tabla Principal -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="tablaAgenda">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>DUI</th>
+                                    <th>Institución</th>
+                                    <th>Teléfono</th>
+                                    <th>Registro</th>
+                                    <th>Médico</th>
+                                    <th>Fecha</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>CARLOS ALFREDO GONZALES</strong></td>
+                                    <td>02043239-6</td>
+                                    <td>-</td>
+                                    <td>75841238</td>
+                                    <td>72728828-2026</td>
+                                    <td>Dr. Ávalos</td>
+                                    <td>31/07/2026</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CARLOS ANTONIO AGUILAR</strong></td>
+                                    <td>02043985-5</td>
+                                    <td><span class="badge bg-info text-dark">ISBM</span></td>
+                                    <td>70014360</td>
+                                    <td>88484848-2026</td>
+                                    <td>Dr. Mendoza</td>
+                                    <td>31/07/2026</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>JUAN PEREZ</strong></td>
+                                    <td>02043231-6</td>
+                                    <td><span class="badge bg-warning text-dark">FONAT</span></td>
+                                    <td>76421385</td>
+                                    <td>7283828-2026</td>
+                                    <td>Dra. Molina</td>
+                                    <td>31/07/2026</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                </div>
-            </div>
+                </div>
+            </div>
 
-        </div>
-    </div>
+        </div>
+    </div>
 
-    <!-- Script de Exportación a Excel -->
-    <script>
-        function exportarExcel() {
-            let tabla = document.getElementById("tablaAgenda");
-            if (!tabla) return;
-            
-            let html = tabla.outerHTML;
-            let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
-            let a = document.createElement('a');
-            
-            a.href = url;
-            a.download = 'Agenda_Pacientes_' + new Date().toISOString().slice(0,10) + '.xls';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-    </script>
+    <!-- Script de Exportación a Excel -->
+    <script>
+        function exportarExcel() {
+            let tabla = document.getElementById("tablaAgenda");
+            if (!tabla) return;
+            
+            let html = tabla.outerHTML;
+            let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
+            let a = document.createElement('a');
+            
+            a.href = url;
+            a.download = 'Agenda_Pacientes_' + new Date().toISOString().slice(0,10) + '.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
 </body>
 </html>
