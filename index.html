@@ -3,202 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Citas - Consulta Externa</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Sistema de Citas - En Línea</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Estilos Personalizados -->
     <style>
-        @media print {
-            /* Ocultar formulario lateral, botones de acción y elementos innecesarios al imprimir */
-            form, .btn-acciones, .sidebar-form, .navbar-toggler, .btn, hr {
-                display: none !important;
-            }
-            /* Ajustar la tabla al 100% de la hoja */
-            .container-fluid, .card, .table-responsive {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
-            body {
-                background-color: white !important;
-            }
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.95rem;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #edf2f7;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 8px 12px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+        .table tbody td {
+            white-space: nowrap;
+            font-size: 0.87rem;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+        @media (max-width: 768px) {
+            body { font-size: 0.9rem; }
+            .card-body { padding: 1rem; }
+            .table-responsive { margin-bottom: 0; }
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
     <!-- Barra Superior -->
-    <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1"><i class="fas fa-calendar-alt me-2"></i> Sistema de Citas</span>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-3">
+        <div class="container-xl">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas
+            </a>
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
+    <!-- Contenedor Principal -->
+    <div class="container-xl mb-5">
+        <div class="row g-4">
             
             <!-- Columna Izquierda: Formulario -->
-            <div class="col-md-4 sidebar-form mb-4">
-                <div class="card shadow-sm border-0 p-3">
-                    <h5 class="text-primary mb-3"><i class="fas fa-user-plus me-1"></i> Consulta Externa CAL</h5>
-                    <form id="formCita">
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Nombre del Paciente</label>
-                            <input type="text" class="form-control" id="nombrePaciente" required oninput="this.value = this.value.toUpperCase()">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">DUI</label>
-                            <input type="text" class="form-control" id="duiPaciente" placeholder="00000000-0">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Teléfono</label>
-                            <input type="text" class="form-control" id="telefonoPaciente" placeholder="70000000" maxlength="8">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">N° de Registro</label>
-                            <input type="text" class="form-control" id="registroPaciente">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Institución / Procedencia (Opcional)</label>
-                            <select class="form-select" id="institucionPaciente">
-                                <option value="">Ninguna / Seleccionar...</option>
-                                <option value="ISBM">ISBM</option>
-                                <option value="FONAT">FONAT</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Seleccionar Médico</label>
-                            <select class="form-select" id="medicoPaciente">
-                                <option value="">Elija especialista...</option>
-                                <option value="Dr. Ávalos">Dr. Ávalos</option>
-                                <option value="Dr. Mendoza">Dr. Mendoza</option>
-                                <option value="Dra. Molina">Dra. Molina</option>
-                                <option value="Dr. Reyes">Dr. Reyes</option>
-                                <option value="Dr. González">Dr. González</option>
-                                <option value="Dra. Flores">Dra. Flores</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-monospace small">Fecha de la Cita</label>
-                            <input type="date" class="form-control" id="fechaCita">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                            <i class="fas fa-save me-1"></i> Guardar Cita
-                        </button>
-                    </form>
+            <div class="col-12 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header py-3 text-primary d-flex justify-content-between align-items-center">
+                        <span id="tituloFormulario" style="font-size: 0.85rem;"><i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL</span>
+                        <button type="button" id="btnCancelarEdicion" class="btn btn-sm btn-outline-secondary d-none">Cancelar</button>
+                    </div>
+                    <div class="card-body">
+                        <form id="formCita">
+                            <input type="hidden" id="editKey" value="">
+                            
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Nombre del Paciente</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtNombre" style="text-transform: uppercase;" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">DUI</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-id-card text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtDui" maxlength="10" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Teléfono</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-phone text-muted"></i></span>
+                                    <input type="tel" class="form-control" id="txtTelefono" maxlength="8" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">N° de Registro</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-file-medical text-muted"></i></span>
+                                    <input type="text" class="form-control" id="txtRegistro" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Institución / Procedencia (Opcional)</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-building-columns text-muted"></i></span>
+                                    <select class="form-select" id="cmbInstitucion">
+                                        <option value="" selected>Ninguna / Seleccionar...</option>
+                                        <option value="ISBM">ISBM</option>
+                                        <option value="FONAT">FONAT</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Seleccionar Médico</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-doctor text-muted"></i></span>
+                                    <select class="form-select" id="cmbMedicos" required>
+                                        <option value="" selected disabled>Elija especialista...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold mb-1">Fecha de la Cita</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                                    <input type="date" class="form-control" id="dateCita" required>
+                                </div>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">No disponible fines de semana/asuetos.</div>
+                            </div>
+
+                            <button type="submit" id="btnSubmit" class="btn btn-primary btn-sm w-100 shadow-sm mt-2">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Columna Derecha: Tabla y Botones de Impresión/Descarga -->
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0 p-3">
-                    
-                    <!-- ENCABEZADO DE LA TABLA CON LOS NUEVOS BOTONES -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <h5 class="text-secondary m-0"><i class="fas fa-list-alt me-1"></i> Agenda de Pacientes</h5>
-                        
-                        <!-- BOTONES AGREGADOS -->
-                        <div class="d-flex gap-2">
-                            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm">
-                                <i class="fas fa-print me-1"></i> Imprimir
-                            </button>
-                            <button onclick="exportarExcel()" class="btn btn-outline-success btn-sm shadow-sm">
-                                <i class="fas fa-file-excel me-1"></i> Descargar Excel
-                            </button>
+            <!-- Columna Derecha: Tabla y Filtros -->
+            <div class="col-12 col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center text-primary">
+                        <span><i class="fa-solid fa-clipboard-list me-2"></i> Agenda de Pacientes</span>
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <!-- Filtros -->
+                            <div class="row g-2 mb-3 p-2 bg-light rounded-3 border align-items-end">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Buscar / DUI</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtBuscar">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Institución</label>
+                                    <select class="form-select form-select-sm" id="cmbFiltroInstitucion">
+                                        <option value="">Todas</option>
+                                        <option value="ISBM">ISBM</option>
+                                        <option value="FONAT">FONAT</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Médico</label>
+                                    <select class="form-select form-select-sm" id="cmbFiltroMedico">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Fecha</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateFiltro">
+                                </div>
+                            </div>
+
+                            <!-- Tabla -->
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>DUI</th>
+                                            <th>Institución</th>
+                                            <th>Teléfono</th>
+                                            <th>Registro</th>
+                                            <th>Médico</th>
+                                            <th>Fecha</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaCitasBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">Cargando registros desde la nube...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Paginación -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" id="paginacionContainer">
+                            <span class="text-muted small" id="infoPaginacion">Mostrando 0 de 0 citas</span>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0" id="ulPaginacion"></ul>
+                            </nav>
                         </div>
                     </div>
-
-                    <!-- Filtros Rápidos -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar / DUI">
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select form-select-sm">
-                                <option>Todas las Instituciones</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select form-select-sm">
-                                <option>Todos los Médicos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" class="form-control form-control-sm">
-                        </div>
-                    </div>
-
-                    <!-- Tabla Principal -->
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="tablaAgenda">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Paciente</th>
-                                    <th>DUI</th>
-                                    <th>Institución</th>
-                                    <th>Teléfono</th>
-                                    <th>Registro</th>
-                                    <th>Médico</th>
-                                    <th>Fecha</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>CARLOS ALFREDO GONZALES</strong></td>
-                                    <td>02043239-6</td>
-                                    <td>-</td>
-                                    <td>75841238</td>
-                                    <td>72728828-2026</td>
-                                    <td>Dr. Ávalos</td>
-                                    <td>31/07/2026</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>CARLOS ANTONIO AGUILAR</strong></td>
-                                    <td>02043985-5</td>
-                                    <td><span class="badge bg-info text-dark">ISBM</span></td>
-                                    <td>70014360</td>
-                                    <td>88484848-2026</td>
-                                    <td>Dr. Mendoza</td>
-                                    <td>31/07/2026</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary py-0 px-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Script de Exportación a Excel -->
+    <!-- Modal Personalizado Estilo App -->
+    <div class="modal fade" id="modalAviso" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fa-solid fa-circle-check text-success fa-3x"></i>
+                    </div>
+                    <h6 class="fw-bold mb-3" id="textoMensajeAviso">¡Cita guardada correctamente!</h6>
+                    <button type="button" class="btn btn-primary btn-sm w-100 rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDKs Compat v10 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Script Principal de Lógica y Firebase -->
     <script>
-        function exportarExcel() {
-            let tabla = document.getElementById("tablaAgenda");
-            let html = tabla.outerHTML;
+        // Tus credenciales exactas de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuixL3_4MSVbVLorKtepRq2kCb1AUfeUM",
+            authDomain: "agendamedica-865ad.firebaseapp.com",
+            databaseURL: "https://agendamedica-865ad-default-rtdb.firebaseio.com",
+            projectId: "agendamedica-865ad",
+            storageBucket: "agendamedica-865ad.firebasestorage.app",
+            messagingSenderId: "172417681026",
+            appId: "1:172417681026:web:465a936a7fcff46d41d69b",
+            measurementId: "G-RXBD9KR3GV"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database().ref('citas_medicas');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const medicosLista = [
+                "Dr. Ávalos", "Dr. González", "Dr. Reyes", 
+                "Dr. Mendoza", "Dr. Hurtarte", "Dra. Molina", "Dra. Flores"
+            ];
+
+            let citasObj = {};
+            let paginaActual = 1;
+            const registrosPorPagina = 10;
+
+            const formCita = document.getElementById('formCita');
+            const cmbMedicos = document.getElementById('cmbMedicos');
+            const cmbInstitucion = document.getElementById('cmbInstitucion');
+            const cmbFiltroMedico = document.getElementById('cmbFiltroMedico');
+            const cmbFiltroInstitucion = document.getElementById('cmbFiltroInstitucion');
+            const tablaCitasBody = document.getElementById('tablaCitasBody');
             
-            // Crear enlace temporal de descarga en formato XLS
-            let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
-            let a = document.createElement('a');
+            const txtNombre = document.getElementById('txtNombre');
+            const txtDui = document.getElementById('txtDui');
+            const txtTelefono = document.getElementById('txtTelefono');
+            const txtRegistro = document.getElementById('txtRegistro');
+            const dateCita = document.getElementById('dateCita');
             
-            a.href = url;
-            a.download = 'Agenda_Pacientes_' + new Date().toISOString().slice(0,10) + '.xls';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
+            const txtBuscar = document.getElementById('txtBuscar');
+            const dateFiltro = document.getElementById('dateFiltro');
+            const editKey = document.getElementById('editKey');
+            const tituloFormulario = document.getElementById('tituloFormulario');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnCancelarEdicion = document.getElementById('btnCancelarEdicion');
+            
+            const infoPaginacion = document.getElementById('infoPaginacion');
+            const ulPaginacion = document.getElementById('ulPaginacion');
+
+            // Instancia del Modal de Bootstrap
+            const modalAvisoElement = document.getElementById('modalAviso');
+            const modalAviso = new bootstrap.Modal(modalAvisoElement);
+            const textoMensajeAviso = document.getElementById('textoMensajeAviso');
+
+            function mostrarAviso(mensaje) {
+                textoMensajeAviso.textContent = mensaje;
+                modalAviso.show();
+            }
+
+            txtNombre.addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+
+            txtDui.addEventListener('input', (e) => {
+                let val = e.target.value.replace(/[^0-9]/g, '');
+                if (val.length > 8) val = val.slice(0, 8) + '-' + val.slice(8, 9);
+                e.target.value = val;
+            });
+
+            txtTelefono.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+            });
+
+            txtRegistro.addEventListener('input', (e) => {
+                let val = e.target.value;
+                val = val.replace(/(^|[^\-])(20\d{2})/g, '$1-$2');
+                e.target.value = val;
+            });
+
+            const asuetosFijos = ["01-01", "05-01", "05-10", "06-17", "08-05", "08-06", "09-15", "11-02", "12-25"];
+
+            function esDiaInhabil(fechaStr) {
+                if (!fechaStr) return false;
+                const partes = fechaStr.split('-');
+                const mesDia = `${partes[1]}-${partes[2]}`;
+                const fecha = new Date(fechaStr + 'T00:00:00');
+                const diaSemana = fecha.getDay();
+                if (diaSemana === 0 || diaSemana === 6) return true;
+                if (asuetosFijos.includes(mesDia)) return true;
+                return false;
+            }
+
+            dateCita.addEventListener('change', () => {
+                if (esDiaInhabil(dateCita.value)) {
+                    alert('⚠️ No se pueden agendar citas en fines de semana o días asuetos nacionales.');
+                    dateCita.value = '';
+                }
+            });
+
+            function inicializarSelectsMedicos() {
+                medicosLista.forEach(medico => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = medico;
+                    opt1.textContent = (medico === "Dr. Hurtarte") ? `${medico}  🔴 (Lunes/Miércoles)` : medico;
+                    cmbMedicos.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = medico;
+                    opt2.textContent = medico;
+                    cmbFiltroMedico.appendChild(opt2);
+                });
+            }
+
+            function formatearFechaDDMMYYYY(fechaStr) {
+                if (!fechaStr) return '';
+                const partes = fechaStr.split('-');
+                return (partes.length === 3) ? `${partes[2]}/${partes[1]}/${partes[0]}` : fechaStr;
+            }
+
+            function obtenerDatosFiltrados() {
+                const textoBusqueda = txtBuscar.value.toLowerCase();
+                const instFiltro = cmbFiltroInstitucion.value;
+                const medicoFiltro = cmbFiltroMedico.value;
+                const fechaFiltro = dateFiltro.value;
+
+                const listaCitasArray = Object.keys(citasObj).map(key => ({
+                    id: key,
+                    ...citasObj[key]
+                }));
+
+                return listaCitasArray.filter(cita => {
+                    const coincideTexto = cita.nombre.toLowerCase().includes(textoBusqueda) || cita.dui.toLowerCase().includes(textoBusqueda);
+                    const coincideInst = instFiltro === "" || cita.institucion === instFiltro;
+                    const coincideMedico = medicoFiltro === "" || cita.medico === medicoFiltro;
+                    const coincideFecha = fechaFiltro === "" || cita.fecha === fechaFiltro;
+                    return coincideTexto && coincideInst && coincideMedico && coincideFecha;
+                });
+            }
+
+            function renderizarTabla() {
+                const datosFiltrados = obtenerDatosFiltrados();
+                tablaCitasBody.innerHTML = '';
+
+                const totalRegistros = datosFiltrados.length;
+                const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
+
+                if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+                if (paginaActual < 1) paginaActual = 1;
+
+                const inicio = (paginaActual - 1) * registrosPorPagina;
+                const fin = inicio + registrosPorPagina;
+                const datosPaginados = datosFiltrados.slice(inicio, fin);
+
+                if (datosPaginados.length === 0) {
+                    tablaCitasBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron registros de citas.</td></tr>`;
+                    infoPaginacion.textContent = `Mostrando 0 de 0 citas`;
+                    ulPaginacion.innerHTML = '';
+                    return;
+                }
+
+                datosPaginados.forEach((cita) => {
+                    let badgeHtml = '<span class="text-muted">-</span>';
+                    if (cita.institucion === "ISBM") badgeHtml = '<span class="badge bg-info text-dark px-2 py-1">ISBM</span>';
+                    else if (cita.institucion === "FONAT") badgeHtml = '<span class="badge bg-warning text-dark px-2 py-1">FONAT</span>';
+
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td class="fw-semibold text-dark">${cita.nombre}</td>
+                        <td>${cita.dui}</td>
+                        <td>${badgeHtml}</td>
+                        <td>${cita.telefono}</td>
+                        <td><span class="badge bg-light text-dark border">${cita.registro}</span></td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1">${cita.medico}</span></td>
+                        <td>${formatearFechaDDMMYYYY(cita.fecha)}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary px-2 py-1 me-1 btn-editar" data-id="${cita.id}" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger px-2 py-1 btn-borrar" data-id="${cita.id}" title="Borrar"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    `;
+                    tablaCitasBody.appendChild(fila);
+                });
+
+                infoPaginacion.textContent = `Mostrando ${inicio + 1} a ${Math.min(fin, totalRegistros)} de ${totalRegistros} citas`;
+                renderizarControlesPaginacion(totalPaginas);
+
+                document.querySelectorAll('.btn-editar').forEach(btn => {
+                    btn.addEventListener('click', (e) => cargarDatosParaEditar(e.currentTarget.getAttribute('data-id')));
+                });
+
+                document.querySelectorAll('.btn-borrar').forEach(btn => {
+                    btn.addEventListener('click', (e) => eliminarCita(e.currentTarget.getAttribute('data-id')));
+                });
+            }
+
+            function renderizarControlesPaginacion(totalPaginas) {
+                ulPaginacion.innerHTML = '';
+                if (totalPaginas <= 1) return;
+
+                const liAnterior = document.createElement('li');
+                liAnterior.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+                liAnterior.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual - 1}">Ant</a>`;
+                ulPaginacion.appendChild(liAnterior);
+
+                for (let i = 1; i <= totalPaginas; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${paginaActual === i ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                    ulPaginacion.appendChild(li);
+                }
+
+                const liSiguiente = document.createElement('li');
+                liSiguiente.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+                liSiguiente.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual + 1}">Sig</a>`;
+                ulPaginacion.appendChild(liSiguiente);
+
+                ulPaginacion.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const p = parseInt(e.currentTarget.getAttribute('data-page'));
+                        if (p >= 1 && p <= totalPaginas) {
+                            paginaActual = p;
+                            renderizarTabla();
+                        }
+                    });
+                });
+            }
+
+            function cargarDatosParaEditar(id) {
+                const cita = citasObj[id];
+                if (!cita) return;
+
+                txtNombre.value = cita.nombre;
+                txtDui.value = cita.dui;
+                txtTelefono.value = cita.telefono;
+                txtRegistro.value = cita.registro;
+                cmbInstitucion.value = cita.institucion || "";
+                cmbMedicos.value = cita.medico;
+                dateCita.value = cita.fecha;
+                editKey.value = id;
+
+                tituloFormulario.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Editando Cita`;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-rotate me-2"></i> Actualizar`;
+                btnCancelarEdicion.classList.remove('d-none');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function eliminarCita(id) {
+                firebase.database().ref('citas_medicas/' + id).remove()
+                    .then(() => { limpiarFormulario(); })
+                    .catch(err => console.error(err));
+            }
+
+            function limpiarFormulario() {
+                formCita.reset();
+                editKey.value = '';
+                tituloFormulario.innerHTML = `<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL`;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita`;
+                btnCancelarEdicion.classList.add('d-none');
+            }
+
+            btnCancelarEdicion.addEventListener('click', limpiarFormulario);
+
+            formCita.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nombreVal = txtNombre.value.trim();
+                const duiVal = txtDui.value.trim();
+                const telVal = txtTelefono.value.trim();
+                const regVal = txtRegistro.value.trim();
+                const instVal = cmbInstitucion.value;
+                const fechaVal = dateCita.value;
+                const key = editKey.value;
+
+                if (!/^\d{8}-\d{1}$/.test(duiVal)) {
+                    alert('El DUI debe contener exactamente 8 dígitos, un guion y 1 dígito verificador (Ej: 02043231-6).');
+                    txtDui.focus();
+                    return;
+                }
+                if (telVal.length !== 8) {
+                    alert('El teléfono debe contener exactamente 8 dígitos.');
+                    txtTelefono.focus();
+                    return;
+                }
+                if (esDiaInhabil(fechaVal)) {
+                    alert('La fecha seleccionada corresponde a un fin de semana o día asueto.');
+                    return;
+                }
+
+                const datosCita = {
+                    nombre: nombreVal, dui: duiVal, institucion: instVal,
+                    telefono: telVal, registro: regVal, medico: cmbMedicos.value, fecha: fechaVal
+                };
+
+                const dbRuta = firebase.database().ref('citas_medicas');
+                if (key === "") {
+                    dbRuta.push(datosCita).then(() => { 
+                        limpiarFormulario(); 
+                        mostrarAviso('¡Cita guardada correctamente!');
+                    }).catch(err => alert(err.message));
+                } else {
+                    firebase.database().ref('citas_medicas/' + key).set(datosCita).then(() => { 
+                        limpiarFormulario(); 
+                        mostrarAviso('¡Cita actualizada correctamente!');
+                    }).catch(err => alert(err.message));
+                }
+            });
+
+            txtBuscar.addEventListener('input', () => { paginaActual = 1; renderizarTabla(); });
+            cmbFiltroInstitucion.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+            cmbFiltroMedico.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+            dateFiltro.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+
+            inicializarSelectsMedicos();
+
+            dbRef.on('value', (snapshot) => {
+                citasObj = snapshot.val() || {};
+                renderizarTabla();
+            });
+        });
     </script>
 </body>
 </html>
