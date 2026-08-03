@@ -52,40 +52,48 @@
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
         }
 
-        /* Estilos de Tabla Tradicional para Escritorio */
         .table-desktop thead th {
             background-color: #f8f9fa;
             color: #495057;
             font-weight: 600;
             border-bottom: 2px solid #dee2e6;
-            font-size: 0.8rem;
-            padding: 8px 6px;
+            font-size: 0.75rem;
+            padding: 6px 4px;
         }
         .table-desktop tbody td {
-            font-size: 0.82rem;
-            padding: 6px;
+            font-size: 0.75rem;
+            padding: 5px 4px;
             vertical-align: middle;
             word-break: break-word;
         }
 
-        /* Vista de Tarjetas para Móviles */
         .cita-card-mobile {
             border: 1px solid #e2e8f0;
             border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
             background-color: #ffffff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            font-size: 0.8rem;
         }
         .cita-card-mobile .row-dato {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .cita-card-mobile .label-dato {
             font-weight: 600;
             color: #6c757d;
+        }
+
+        /* Badge para modo optimizado */
+        .badge-optimizado {
+            font-size: 0.6rem;
+            background: #28a745;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: 10px;
         }
 
         @media (max-width: 991.98px) {
@@ -105,6 +113,7 @@
         <div class="container-xl">
             <a class="navbar-brand" href="#">
                 <i class="fa-solid fa-calendar-check me-2"></i> Sistema de Citas
+                <span class="badge-optimizado">Últimos 6 meses</span>
             </a>
         </div>
     </nav>
@@ -200,6 +209,7 @@
                 <div class="card h-100">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center text-primary">
                         <span><i class="fa-solid fa-clipboard-list me-2"></i> Agenda de Pacientes</span>
+                        <span class="badge bg-primary" id="contadorCitas">0 citas</span>
                     </div>
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
@@ -234,7 +244,7 @@
                                 </div>
                             </div>
 
-                            <!-- Vista de Tabla Tradicional (Sólo PC / Pantallas grandes) -->
+                            <!-- Vista de Tabla Tradicional -->
                             <div class="table-responsive ocultar-en-movil">
                                 <table class="table table-hover table-sm align-middle mb-0 w-100 table-desktop">
                                     <thead>
@@ -243,8 +253,8 @@
                                             <th style="width: 13%;">DUI</th>
                                             <th style="width: 10%;">Institución</th>
                                             <th style="width: 9%;">Teléfono</th>
-                                            <th style="width: 13%;">Registro</th>
-                                            <th style="width: 13%;">Médico</th>
+                                            <th style="width: 14%;">Registro</th>
+                                            <th style="width: 12%;">Médico</th>
                                             <th style="width: 11%;">Fecha</th>
                                             <th style="width: 9%;" class="text-center">Acciones</th>
                                         </tr>
@@ -255,7 +265,7 @@
                                 </table>
                             </div>
 
-                            <!-- Vista de Tarjetas (Sólo Celulares / Pantallas pequeñas) -->
+                            <!-- Vista de Tarjetas para Móviles -->
                             <div class="mostrar-en-movil" id="contenedorCitasMobile">
                                 <div class="text-center text-muted py-4">Cargando registros...</div>
                             </div>
@@ -290,7 +300,7 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación para Eliminar (Sí o No) -->
+    <!-- Modal de Confirmación para Eliminar -->
     <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
@@ -316,7 +326,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-    <!-- Script Principal de Lógica y Firebase -->
+    <!-- Script Principal - OPTIMIZADO 6 MESES -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDuixL3_4MSVbVLorKtepRq2kCb1AUfeUM",
@@ -368,6 +378,7 @@
             
             const infoPaginacion = document.getElementById('infoPaginacion');
             const ulPaginacion = document.getElementById('ulPaginacion');
+            const contadorCitas = document.getElementById('contadorCitas');
 
             const modalAvisoElement = document.getElementById('modalAviso');
             const modalAviso = new bootstrap.Modal(modalAvisoElement);
@@ -436,7 +447,7 @@
                     const viernesSanto = new Date(domingoPascua);
                     viernesSanto.setDate(domingoPascua.getDate() - 2);
 
-                    const formatYMD = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate(), 10).padStart(2, '0')}`;
+                    const formatYMD = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
                     return [formatYMD(juevesSanto), formatYMD(viernesSanto)];
                 };
 
@@ -537,6 +548,8 @@
                 const totalRegistros = datosFiltrados.length;
                 const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
 
+                contadorCitas.textContent = `${totalRegistros} cita${totalRegistros !== 1 ? 's' : ''}`;
+
                 if (paginaActual > totalPaginas) paginaActual = totalPaginas;
                 if (paginaActual < 1) paginaActual = 1;
 
@@ -545,8 +558,11 @@
                 const datosPaginados = datosFiltrados.slice(inicio, fin);
 
                 if (datosPaginados.length === 0) {
-                    tablaCitasBodyDesktop.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron registros de citas.</td></tr>`;
-                    contenedorCitasMobile.innerHTML = `<div class="text-center text-muted py-4">No se encontraron registros de citas.</div>`;
+                    const mensaje = totalRegistros === 0 ? 
+                        'No hay citas registradas en los últimos 6 meses' : 
+                        'No se encontraron registros de citas con los filtros aplicados.';
+                    tablaCitasBodyDesktop.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">${mensaje}</td></tr>`;
+                    contenedorCitasMobile.innerHTML = `<div class="text-center text-muted py-4">${mensaje}</div>`;
                     infoPaginacion.textContent = `Mostrando 0 de 0 citas`;
                     ulPaginacion.innerHTML = '';
                     return;
@@ -554,32 +570,30 @@
 
                 datosPaginados.forEach((cita) => {
                     let badgeHtml = '<span class="text-muted">-</span>';
-                    if (cita.institucion === "ISBM") badgeHtml = '<span class="badge bg-info text-dark px-1 py-1" style="font-size: 0.75rem;">ISBM</span>';
-                    else if (cita.institucion === "FONAT") badgeHtml = '<span class="badge bg-warning text-dark px-1 py-1" style="font-size: 0.75rem;">FONAT</span>';
+                    if (cita.institucion === "ISBM") badgeHtml = '<span class="badge bg-info text-dark px-1 py-1" style="font-size: 0.65rem;">ISBM</span>';
+                    else if (cita.institucion === "FONAT") badgeHtml = '<span class="badge bg-warning text-dark px-1 py-1" style="font-size: 0.65rem;">FONAT</span>';
 
-                    // 1. Render para Escritorio (Tabla tradicional)
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
                         <td class="fw-semibold text-dark">${cita.nombre}</td>
                         <td>${cita.dui}</td>
                         <td>${badgeHtml}</td>
                         <td>${cita.telefono}</td>
-                        <td><span class="badge bg-light text-dark border">${cita.registro}</span></td>
+                        <td><span class="badge bg-light text-dark border px-1">${cita.registro}</span></td>
                         <td><span class="badge bg-primary bg-opacity-10 text-primary px-1 py-1">${cita.medico}</span></td>
                         <td>${formatearFechaDDMMYYYY(cita.fecha)}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary p-1 me-1 btn-editar" data-id="${cita.id}" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger p-1 btn-borrar" data-id="${cita.id}" title="Borrar"><i class="fa-solid fa-trash-can"></i></button>
+                            <button class="btn btn-sm btn-outline-primary p-1 me-1 btn-editar" style="font-size: 0.7rem;" data-id="${cita.id}" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger p-1 btn-borrar" style="font-size: 0.7rem;" data-id="${cita.id}" title="Borrar"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     `;
                     tablaCitasBodyDesktop.appendChild(fila);
 
-                    // 2. Render para Móvil (Tarjetas verticales adaptadas)
                     const cardMobile = document.createElement('div');
                     cardMobile.className = 'cita-card-mobile';
                     cardMobile.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                            <span class="fw-bold text-primary" style="font-size: 0.9rem;">${cita.nombre}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                            <span class="fw-bold text-primary" style="font-size: 0.85rem;">${cita.nombre}</span>
                             <div>
                                 <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1 btn-editar" data-id="${cita.id}"><i class="fa-solid fa-pen-to-square"></i></button>
                                 <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-borrar" data-id="${cita.id}"><i class="fa-solid fa-trash-can"></i></button>
@@ -590,159 +604,162 @@
                         <div class="row-dato"><span class="label-dato">Teléfono:</span> <span>${cita.telefono}</span></div>
                         <div class="row-dato"><span class="label-dato">Registro:</span> <span>${cita.registro}</span></div>
                         <div class="row-dato"><span class="label-dato">Médico:</span> <span>${cita.medico}</span></div>
-                        <div class="row-dato"><span class="label-dato">Fecha:</span> <span class="fw-semibold text-dark">${formatearFechaDDMMYYYY(cita.fecha)}</span></div>
+                        <div class="row-dato"><span class="label-dato">Fecha:</span> <span class="fw-bold text-success">${formatearFechaDDMMYYYY(cita.fecha)}</span></div>
                     `;
                     contenedorCitasMobile.appendChild(cardMobile);
                 });
 
-                infoPaginacion.textContent = `Mostrando ${inicio + 1} a ${Math.min(fin, totalRegistros)} de ${totalRegistros} citas`;
-                renderizarControlesPaginacion(totalPaginas);
-
-                // Asignar eventos a los botones de editar y borrar (tanto en tabla como en tarjetas móviles)
-                document.querySelectorAll('.btn-editar').forEach(btn => {
-                    btn.addEventListener('click', (e) => cargarDatosParaEditar(e.currentTarget.getAttribute('data-id')));
-                });
-
-                document.querySelectorAll('.btn-borrar').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        idCitaAEliminar = e.currentTarget.getAttribute('data-id');
-                        modalConfirmarEliminar.show();
-                    });
-                });
+                infoPaginacion.textContent = `Mostrando del ${inicio + 1} al ${Math.min(fin, totalRegistros)} de ${totalRegistros} citas`;
+                renderizarPaginacion(totalPaginas);
             }
 
-            btnConfirmarEliminacion.addEventListener('click', () => {
-                if (idCitaAEliminar) {
-                    firebase.database().ref('citas_medicas/' + idCitaAEliminar).remove()
-                        .then(() => {
-                            modalConfirmarEliminar.hide();
-                            limpiarFormulario();
-                            idCitaAEliminar = null;
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            modalConfirmarEliminar.hide();
-                        });
-                }
-            });
-
-            function renderizarControlesPaginacion(totalPaginas) {
+            function renderizarPaginacion(totalPaginas) {
                 ulPaginacion.innerHTML = '';
                 if (totalPaginas <= 1) return;
 
-                const liAnterior = document.createElement('li');
-                liAnterior.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
-                liAnterior.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual - 1}">Ant</a>`;
-                ulPaginacion.appendChild(liAnterior);
-
-                for (let i = 1; i <= totalPaginas; i++) {
+                const crearBotonPagina = (texto, pagina, deshabilitado = false, activo = false) => {
                     const li = document.createElement('li');
-                    li.className = `page-item ${paginaActual === i ? 'active' : ''}`;
-                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-                    ulPaginacion.appendChild(li);
+                    li.className = `page-item ${deshabilitado ? 'disabled' : ''} ${activo ? 'active' : ''}`;
+                    li.innerHTML = `<button class="page-link" style="font-size: 0.75rem;">${texto}</button>`;
+                    if (!deshabilitado && !activo) {
+                        li.querySelector('button').addEventListener('click', () => {
+                            paginaActual = pagina;
+                            renderizarTabla();
+                        });
+                    }
+                    return li;
+                };
+
+                ulPaginacion.appendChild(crearBotonPagina('&laquo;', paginaActual - 1, paginaActual === 1));
+
+                let inicioRango = Math.max(1, paginaActual - 2);
+                let finRango = Math.min(totalPaginas, inicioRango + 4);
+                if (finRango - inicioRango < 4) {
+                    inicioRango = Math.max(1, finRango - 4);
                 }
 
-                const liSiguiente = document.createElement('li');
-                liSiguiente.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
-                liSiguiente.innerHTML = `<a class="page-link" href="#" data-page="${paginaActual + 1}">Sig</a>`;
-                ulPaginacion.appendChild(liSiguiente);
+                for (let i = inicioRango; i <= finRango; i++) {
+                    ulPaginacion.appendChild(crearBotonPagina(i, i, false, i === paginaActual));
+                }
 
-                ulPaginacion.querySelectorAll('.page-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const p = parseInt(e.currentTarget.getAttribute('data-page'));
-                        if (p >= 1 && p <= totalPaginas) {
-                            paginaActual = p;
-                            renderizarTabla();
-                        }
-                    });
+                ulPaginacion.appendChild(crearBotonPagina('&raquo;', paginaActual + 1, paginaActual === totalPaginas));
+            }
+
+            [txtBuscar, cmbFiltroInstitucion, cmbFiltroMedico, dateFiltro].forEach(elemento => {
+                elemento.addEventListener('input', () => {
+                    paginaActual = 1;
+                    renderizarTabla();
                 });
-            }
+                elemento.addEventListener('change', () => {
+                    paginaActual = 1;
+                    renderizarTabla();
+                });
+            });
 
-            function cargarDatosParaEditar(id) {
-                const cita = citasObj[id];
-                if (!cita) return;
+            formCita.addEventListener('submit', (e) => {
+                e.preventDefault();
 
-                txtNombre.value = cita.nombre;
-                txtDui.value = cita.dui;
-                txtTelefono.value = cita.telefono;
-                txtRegistro.value = cita.registro;
-                cmbInstitucion.value = cita.institucion || "";
-                cmbMedicos.value = cita.medico;
-                dateCita.value = cita.fecha;
-                editKey.value = id;
+                const nuevaCita = {
+                    nombre: txtNombre.value.trim(),
+                    dui: txtDui.value.trim(),
+                    telefono: txtTelefono.value.trim(),
+                    registro: txtRegistro.value.trim(),
+                    institucion: cmbInstitucion.value,
+                    medico: cmbMedicos.value,
+                    fecha: dateCita.value
+                };
 
-                tituloFormulario.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Editando Cita`;
-                btnSubmit.innerHTML = `<i class="fa-solid fa-rotate me-2"></i> Actualizar`;
-                btnCancelarEdicion.classList.remove('d-none');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+                const keyToEdit = editKey.value;
+
+                if (keyToEdit) {
+                    dbRef.child(keyToEdit).update(nuevaCita)
+                        .then(() => {
+                            mostrarAviso('¡Cita actualizada correctamente!');
+                            limpiarFormulario();
+                        })
+                        .catch(error => alert('Error al actualizar: ' + error.message));
+                } else {
+                    dbRef.push(nuevaCita)
+                        .then(() => {
+                            mostrarAviso('¡Cita guardada correctamente!');
+                            limpiarFormulario();
+                        })
+                        .catch(error => alert('Error al guardar: ' + error.message));
+                }
+            });
 
             function limpiarFormulario() {
                 formCita.reset();
                 editKey.value = '';
-                tituloFormulario.innerHTML = `<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL`;
-                btnSubmit.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita`;
+                tituloFormulario.innerHTML = '<i class="fa-solid fa-hospital-user me-2"></i> Consulta Externa CAL';
+                btnSubmit.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cita';
                 btnCancelarEdicion.classList.add('d-none');
             }
 
             btnCancelarEdicion.addEventListener('click', limpiarFormulario);
 
-            formCita.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nombreVal = txtNombre.value.trim();
-                const duiVal = txtDui.value.trim();
-                const telVal = txtTelefono.value.trim();
-                const regVal = txtRegistro.value.trim();
-                const instVal = cmbInstitucion.value;
-                const fechaVal = dateCita.value;
-                const key = editKey.value;
+            document.addEventListener('click', (e) => {
+                const btnEditar = e.target.closest('.btn-editar');
+                const btnBorrar = e.target.closest('.btn-borrar');
 
-                if (!/^\d{8}-\d{1}$/.test(duiVal)) {
-                    alert('El DUI debe contener exactamente 8 dígitos, un guion y 1 dígito verificador (Ej: 02043231-6).');
-                    txtDui.focus();
-                    return;
-                }
-                if (telVal.length !== 8) {
-                    alert('El teléfono debe contener exactamente 8 dígitos.');
-                    txtTelefono.focus();
-                    return;
-                }
-                if (esDiaInhabil(fechaVal)) {
-                    alert('La fecha seleccionada corresponde a un fin de semana, asueto nacional o período vacacional oficial.');
-                    return;
+                if (btnEditar) {
+                    const id = btnEditar.getAttribute('data-id');
+                    const cita = citasObj[id];
+                    if (cita) {
+                        editKey.value = id;
+                        txtNombre.value = cita.nombre || '';
+                        txtDui.value = cita.dui || '';
+                        txtTelefono.value = cita.telefono || '';
+                        txtRegistro.value = cita.registro || '';
+                        cmbInstitucion.value = cita.institucion || '';
+                        cmbMedicos.value = cita.medico || '';
+                        dateCita.value = cita.fecha || '';
+
+                        tituloFormulario.innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i> Editando Cita';
+                        btnSubmit.innerHTML = '<i class="fa-solid fa-sync me-2"></i> Actualizar Cita';
+                        btnCancelarEdicion.classList.remove('d-none');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                 }
 
-                const datosCita = {
-                    nombre: nombreVal, dui: duiVal, institucion: instVal,
-                    telefono: telVal, registro: regVal, medico: cmbMedicos.value, fecha: fechaVal
-                };
-
-                const dbRuta = firebase.database().ref('citas_medicas');
-                if (key === "") {
-                    dbRuta.push(datosCita).then(() => { 
-                        limpiarFormulario(); 
-                        mostrarAviso('¡Cita guardada correctamente!');
-                    }).catch(err => alert(err.message));
-                } else {
-                    firebase.database().ref('citas_medicas/' + key).set(datosCita).then(() => { 
-                        limpiarFormulario(); 
-                        mostrarAviso('¡Cita actualizada correctamente!');
-                    }).catch(err => alert(err.message));
+                if (btnBorrar) {
+                    idCitaAEliminar = btnBorrar.getAttribute('data-id');
+                    modalConfirmarEliminar.show();
                 }
             });
 
-            txtBuscar.addEventListener('input', () => { paginaActual = 1; renderizarTabla(); });
-            cmbFiltroInstitucion.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
-            cmbFiltroMedico.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
-            dateFiltro.addEventListener('change', () => { paginaActual = 1; renderizarTabla(); });
+            btnConfirmarEliminacion.addEventListener('click', () => {
+                if (idCitaAEliminar) {
+                    dbRef.child(idCitaAEliminar).remove()
+                        .then(() => {
+                            modalConfirmarEliminar.hide();
+                            mostrarAviso('Registro eliminado exitosamente.');
+                            if (editKey.value === idCitaAEliminar) {
+                                limpiarFormulario();
+                            }
+                            idCitaAEliminar = null;
+                        })
+                        .catch(error => alert('Error al eliminar: ' + error.message));
+                }
+            });
+
+            function escucharCambiosFirebase() {
+                const fechaLimiteObj = new Date();
+                fechaLimiteObj.setMonth(fechaLimiteObj.getMonth() - 6);
+                const fechaLimiteStr = fechaLimiteObj.toISOString().slice(0, 10);
+
+                dbRef.orderByChild('fecha').startAt(fechaLimiteStr).on('value', (snapshot) => {
+                    citasObj = snapshot.val() || {};
+                    renderizarTabla();
+                }, (error) => {
+                    console.error("Error al sincronizar con Firebase:", error);
+                    tablaCitasBodyDesktop.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Error al cargar los datos.</td></tr>`;
+                    contenedorCitasMobile.innerHTML = `<div class="text-center text-danger py-4">Error al cargar los datos.</div>`;
+                });
+            }
 
             inicializarSelectsMedicos();
-
-            dbRef.on('value', (snapshot) => {
-                citasObj = snapshot.val() || {};
-                renderizarTabla();
-            });
+            escucharCambiosFirebase();
         });
     </script>
 </body>
